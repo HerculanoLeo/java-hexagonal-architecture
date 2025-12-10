@@ -1,0 +1,84 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: starter-api-cadastros
+  profiles:
+    active: ${ENVIRONMENT:local}
+  jpa:
+    open-in-view: true
+    properties:
+      hibernate:
+        format_sql: false
+  datasource:
+    username: ${CADASTROS_DB_USERNAME}
+    password: ${CADASTROS_DB_PASSWORD}
+    url: jdbc:postgresql://${CADASTROS_DB_HOST}/${CADASTROS_DB_NAME}
+  liquibase:
+    contexts: ${ENVIRONMENT}
+    user: ${CADASTROS_DB_MG_USERNAME}
+    password: ${CADASTROS_DB_MG_PASSWORD}
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: ${api.oauth.keycloak.url}/realms/${api.oauth.keycloak.realm}
+          jwk-set-uri: ${api.oauth.keycloak.url}/realms/${api.oauth.keycloak.realm}/protocol/openid-connect/certs
+  cloud:
+    openfeign:
+      lazy-attributes-resolution: true
+  freemarker:
+    template-loader-path: classpath:/freemarker-templates/, classpath:/notification-templates/
+
+logging:
+  file:
+    name: /servers/docker/app/files/logs/${spring.application.name}.log
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.metamodel.internal.MetadataContext: ERROR
+    org.hibernate.persister.entity.AbstractEntityPersister: ERROR
+    sql: DEBUG
+    web: INFO
+    org.springframework.modulith: DEBUG
+    com.herculanoleo.starter: DEBUG
+
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: '*'
+    web:
+      exposure:
+        include: 'health,info,refresh,prometheus'
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    path: /openapi/swagger-ui
+
+api:
+  sistema:
+    redirect-uri: ${GESTAO_WEBAPP_URL}
+  web:
+    cors:
+      allowed-origins: ${CADASTROS_CORS_ALLOWED_ORIGINS}
+  notificacao:
+    email:
+      enabled: ${CADASTROS_NOTIFICACAO_EMAIL_ENABLED:true}
+      max-tentativas: ${CADASTROS_NOTIFICACAO_EMAIL_MAX_TENTATIVAS:5}
+    cron-reenvio: ${CADASTROS_NOTIFICACAO_CRON_REENVIO:0 */15 * * * *}
+  oauth:
+    keycloak:
+      url: ${KEYCLOAK_HOST}
+      realm: ${KEYCLOAK_REALM}
+      role-map-keys:
+        - "resource_access"
+        - "realm_access"
+        - "groups"
+      client-id: ${CADASTROS_KEYCLOAK_CLIENT_ID}
+      client-secret: ${CADASTROS_KEYCLOAK_CLIENT_SECRET}
+      gran-type: client_credentials
+      client-id-users: ${KEYCLOAK_CLIENT_ID_USERS}

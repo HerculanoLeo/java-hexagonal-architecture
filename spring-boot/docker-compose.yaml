@@ -1,0 +1,36 @@
+networks:
+  starter-network:
+    name: starter-network
+    driver: bridge
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: starter-otel-collector
+    restart: unless-stopped
+    env_file:
+      - .env
+    hostname: otel
+    networks:
+      - starter-network
+    volumes:
+      - ./otel/config/config.yaml:/etc/otelcol-contrib/config.yaml
+
+  cadastros:
+    image: starter-api-cadastros:${VERSION}
+    container_name: starter-api-cadastros
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - OTEL_SERVICE_NAME=${CADASTROS_OTEL_SERVICE_NAME}
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=${ENVIRONMENT},service.namespace=${NAMESPACE},service.version=${VERSION}
+    hostname: starter-api-cadastros
+    networks:
+      - starter-network
+    ports:
+      - '9000:8080'
+    volumes:
+      - ${FILE_PATH}:/servers/docker/app/files/
+    depends_on:
+      - otel-collector

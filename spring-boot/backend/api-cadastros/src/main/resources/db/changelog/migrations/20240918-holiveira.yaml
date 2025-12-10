@@ -1,0 +1,88 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202409181300-create-schema
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181300-create-schema.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181300-create-schema-rollback.sql
+  - changeSet:
+      id: 202409181305-insert-usuario-sistema-dev
+      author: holiveira
+      contextFilter: dev
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181305-insert-usuario-sistema-dev.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181305-insert-usuario-sistema-dev-rollback.sql
+  - changeSet:
+      id: 202409181310-create-configuracao-dev
+      author: holiveira
+      contextFilter: dev
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181310-create-configuracao-dev.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181310-create-configuracao-dev-rollback.sql
+  - changeSet:
+      id: 202409181305-insert-usuario-sistema-hml
+      author: holiveira
+      contextFilter: hml
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181305-insert-usuario-sistema-hml.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181305-insert-usuario-sistema-hml-rollback.sql
+  - changeSet:
+      id: 202409181310-create-configuracao-hml
+      author: holiveira
+      contextFilter: hml
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181310-create-configuracao-hml.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181310-create-configuracao-hml-rollback.sql
+  - changeSet:
+      id: 202409181305-insert-usuario-sistema-prd
+      author: holiveira
+      contextFilter: prd
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181305-insert-usuario-sistema-prd.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181305-insert-usuario-sistema-prd-rollback.sql
+  - changeSet:
+      id: 202409181310-create-configuracao-prd
+      author: holiveira
+      contextFilter: prd
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181310-create-configuracao-prd.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181310-create-configuracao-prd-rollback.sql
+  - changeSet:
+      id: 202409181320-insert-estados
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181320-insert-estados.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181320-insert-estados-rollback.sql
+  - changeSet:
+      id: 202409181325-insert-municipios
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: db/changelog/sql/202409181325-insert-municipios.sql
+      rollback:
+        - sqlFile:
+            path: db/changelog/sql/202409181325-insert-municipios-rollback.sql

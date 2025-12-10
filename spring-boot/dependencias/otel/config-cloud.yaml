@@ -1,0 +1,203 @@
+extensions:
+  basicauth/grafana_cloud:
+    # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension
+    client_auth:
+      username: "${env:GRAFANA_CLOUD_INSTANCE_ID}"
+      password: "${env:GRAFANA_CLOUD_API_KEY}"
+  basicauth/grafana:
+    client_auth:
+      username: ${GRAFANA_USERNAME}
+      password: ${GRAFANA_PASSWORD}
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'starter-api-cadastros-job'
+          scrape_interval: 1m
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['starter-api-cadastros:8080']
+              labels:
+                environment: '${ENVIRONMENT}'
+                namespace: '${NAMESPACE}'
+          oauth2:
+            client_id: '${OBS_CLIENT_ID}'
+            client_secret: '${OBS_CLIENT_SECRET}'
+            token_url: '${KEYCLOAK_HOST}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token'
+            scopes: ['email', 'profile', 'openid']
+
+processors:
+  batch:
+  # https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor
+  resourcedetection:
+    # Enriches telemetry data with resource information from the host
+    # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor
+    detectors: [ "env", "docker", "system" ]
+    override: false
+  transform/drop_unneeded_resource_attributes:
+    # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
+    error_mode: ignore
+    trace_statements:
+      - context: resource
+        statements:
+          - delete_key(attributes, "k8s.pod.start_time")
+          - delete_key(attributes, "os.description")
+          - delete_key(attributes, "os.type")
+          - delete_key(attributes, "process.command_args")
+          - delete_key(attributes, "process.executable.path")
+          - delete_key(attributes, "process.pid")
+          - delete_key(attributes, "process.runtime.description")
+          - delete_key(attributes, "process.runtime.name")
+          - delete_key(attributes, "process.runtime.version")
+    metric_statements:
+      - context: resource
+        statements:
+          - delete_key(attributes, "k8s.pod.start_time")
+          - delete_key(attributes, "os.description")
+          - delete_key(attributes, "os.type")
+          - delete_key(attributes, "process.command_args")
+          - delete_key(attributes, "process.executable.path")
+          - delete_key(attributes, "process.pid")
+          - delete_key(attributes, "process.runtime.description")
+          - delete_key(attributes, "process.runtime.name")
+          - delete_key(attributes, "process.runtime.version")
+    log_statements:
+      - context: resource
+        statements:
+          - delete_key(attributes, "k8s.pod.start_time")
+          - delete_key(attributes, "os.description")
+          - delete_key(attributes, "os.type")
+          - delete_key(attributes, "process.command_args")
+          - delete_key(attributes, "process.executable.path")
+          - delete_key(attributes, "process.pid")
+          - delete_key(attributes, "process.runtime.description")
+          - delete_key(attributes, "process.runtime.name")
+          - delete_key(attributes, "process.runtime.version")
+  transform/add_resource_attributes_as_metric_attributes:
+    # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
+    error_mode: ignore
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(attributes["deployment.environment"], resource.attributes["deployment.environment"])
+          - set(attributes["service.version"], resource.attributes["service.version"])
+  filter/drop_actuator:
+    traces:
+      span:
+        - attributes["http.route"] == "/actuator/prometheus"
+        - attributes["http.route"] == "/actuator/health"
+  filter/drop_unused_metrics:
+    metrics:
+      include:
+        match_type: "strict"
+        metric_names:
+          - "hikaricp_connections"
+          - "hikaricp_connections_acquire_seconds"
+          - "hikaricp_connections_acquire_seconds_count"
+          - "hikaricp_connections_acquire_seconds_sum"
+          - "hikaricp_connections_active"
+          - "hikaricp_connections_creation_seconds"
+          - "hikaricp_connections_creation_seconds_count"
+          - "hikaricp_connections_creation_seconds_sum"
+          - "hikaricp_connections_idle"
+          - "hikaricp_connections_pending"
+          - "hikaricp_connections_timeout_total"
+          - "hikaricp_connections_usage_seconds"
+          - "hikaricp_connections_usage_seconds_count"
+          - "hikaricp_connections_usage_seconds_sum"
+          - "http_server_requests_seconds"
+          - "http_server_requests_seconds_count"
+          - "http_server_requests_seconds_sum"
+          - "tomcat_requests_bytesReceived_total"
+          - "tomcat_requests_bytesSent_total"
+          - "tomcat_requests_errors_total"
+          - "tomcat_requests_maxTime_total"
+          - "tomcat_requests_processing_seconds_total"
+          - "tomcat_requests_requestCount_total"
+          - "tomcat_sessions_active_current"
+          - "tomcat_sessions_created_total"
+          - "tomcat_sessions_expired_total"
+          - "tomcat_sessions_rejected_total"
+          - "tomcat_threadpool_connectionCount"
+          - "tomcat_threadpool_currentThreadsBusy"
+          - "tomcat_threadpool_currentThreadCount"
+          - "tomcat_threadpool_maxThreads"
+          - "jvm"
+          - "jvm.memory.used.bytes"
+          - "jvm.memory.committed.bytes"
+          - "jvm.memory.max.bytes"
+          - "jvm.gc.pause.seconds"
+          - "jvm.gc.pause.seconds.count"
+          - "jvm.gc.pause.seconds.sum"
+          - "jvm.gc.memory.allocated.bytes.total"
+          - "jvm.gc.memory.promoted.bytes.total"
+          - "jvm.threads.live.threads"
+          - "jvm.threads.daemon.threads"
+          - "jvm.threads.peak.threads"
+          - "jvm.classes.loaded.classes"
+          - "jvm.buffer.total.capacity.bytes"
+          - "jvm.buffer.memory.used.bytes"
+          - "jvm.class.count"
+          - "process_cpu_usage"
+          - "process_files_open_files"
+          - "process_start_time_seconds"
+          - "process_uptime_seconds"
+          - "system_cpu_count"
+          - "system_cpu_usage"
+          - "system_load_average_1m"
+          - "up"
+
+exporters:
+  otlphttp/grafana_cloud:
+    # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlphttpexporter
+    endpoint: "${env:GRAFANA_CLOUD_OTLP_ENDPOINT}"
+    auth:
+      authenticator: basicauth/grafana_cloud
+
+connectors:
+  grafanacloud:
+    # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/grafanacloudconnector
+    host_identifiers: [ "host.name" ]
+
+service:
+  extensions:
+    [
+      basicauth/grafana_cloud,
+    ]
+  pipelines:
+    traces:
+      receivers: [ otlp ]
+      processors:
+        [ resourcedetection, transform/drop_unneeded_resource_attributes, filter/drop_actuator, batch ]
+      exporters: [ otlphttp/grafana_cloud, grafanacloud ]
+    metrics:
+      receivers: [ otlp, prometheus ]
+      processors:
+        [
+          resourcedetection,
+          transform/drop_unneeded_resource_attributes,
+          transform/add_resource_attributes_as_metric_attributes,
+          filter/drop_unused_metrics,
+          batch,
+        ]
+      exporters: [ otlphttp/grafana_cloud ]
+    metrics/grafanacloud:
+      receivers: [ grafanacloud ]
+      processors: [ batch ]
+      exporters: [ otlphttp/grafana_cloud ]
+    logs:
+      receivers: [ otlp ]
+      processors:
+        [
+          resourcedetection,
+          transform/drop_unneeded_resource_attributes,
+          batch,
+        ]
+      exporters: [ otlphttp/grafana_cloud ]

@@ -1,0 +1,405 @@
+{
+  "realm": {
+    "realm": "starter",
+    "displayName": "STARTER",
+    "displayNameHtml": "<div class=\"cs-login__logo\"><div class=\"cs-login__img\"></div><span class=\"cs-login__text\">STARTER</span></div>",
+    "accessTokenLifespan": 300,
+    "ssoSessionIdleTimeout": 1800,
+    "ssoSessionMaxLifespan": 36000,
+    "rememberMe": true,
+    "resetPasswordAllowed": true,
+    "loginTheme": "starter",
+    "accountTheme": "",
+    "adminTheme": "",
+    "emailTheme": "",
+    "smtpServer": {
+      "debug": true,
+      "replyToDisplayName": "",
+      "starttls": false,
+      "auth": true,
+      "envelopeFrom": "",
+      "ssl": false,
+      "password": "1234",
+      "port": 587,
+      "host": "smtp.dummy.com",
+      "replyTo": "",
+      "from": "administrador@dummy.comx",
+      "fromDisplayName": "STARTER - DEV",
+      "authType": "basic",
+      "user": "administrador@dummy.comx"
+    },
+    "eventsEnabled": true,
+    "eventsExpiration": 7776000,
+    "adminEventsEnabled": true,
+    "adminEventsDetailsEnabled": true,
+    "internationalizationEnabled": true,
+    "supportedLocales": [
+      "pt-BR",
+      "en"
+    ],
+    "defaultLocale": "pt-BR",
+    "attributes": {
+      "adminEventsExpiration": 7776000,
+      "customRegistrationUrl": "http://localhost:5137/register"
+    }
+  },
+  "userProfile": {
+    "attributes": [
+      {
+        "name": "lastName",
+        "displayName": "${lastName}",
+        "validations": {
+          "length": {
+            "max": 255
+          },
+          "person-name-prohibited-characters": {}
+        },
+        "annotations": {},
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin",
+            "user"
+          ]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "application.type",
+        "displayName": "${profile.attributes.application.type}",
+        "validations": {},
+        "annotations": {},
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin"
+          ]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "application.relacionadoId",
+        "displayName": "${profile.attributes.application.relacionadoId}",
+        "validations": {},
+        "annotations": {},
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin"
+          ]
+        },
+        "multivalued": false
+      }
+    ]
+  },
+  "localization": [
+    {
+      "selectedLocale": "en",
+      "locales": [
+        {
+          "key": "profile.attributes.application.type",
+          "value": "Access Type"
+        },
+        {
+          "key": "profile.attributes.application.relacionadoId",
+          "value": "Related ID"
+        }
+      ]
+    },
+    {
+      "selectedLocale": "pt-BR",
+      "locales": [
+        {
+          "key": "profile.attributes.application.type",
+          "value": "Tipo de Acesso"
+        },
+        {
+          "key": "profile.attributes.application.relacionadoId",
+          "value": "ID Relacionado"
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "protocol": "openid-connect",
+      "clientId": "starter-cadastros",
+      "name": "STARTER - Cadastros",
+      "description": "",
+      "publicClient": false,
+      "authorizationServicesEnabled": false,
+      "serviceAccountsEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "frontchannelLogout": true,
+      "attributes": {
+        "saml_idp_initiated_sso_url_name": "",
+        "oauth2.device.authorization.grant.enabled": false,
+        "oidc.ciba.grant.enabled": false
+      },
+      "alwaysDisplayInConsole": false,
+      "rootUrl": "",
+      "baseUrl": "",
+      "serviceAccountAttributes": {
+        "application.type": "CL"
+      },
+      "roles": [
+        {
+          "clientName": "realm-management",
+          "roles": [
+            "realm-admin"
+          ]
+        }
+      ]
+    },
+    {
+      "protocol": "openid-connect",
+      "clientId": "webapp",
+      "name": "Webapp",
+      "description": "",
+      "publicClient": true,
+      "authorizationServicesEnabled": false,
+      "serviceAccountsEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "frontchannelLogout": true,
+      "attributes": {
+        "saml_idp_initiated_sso_url_name": "",
+        "oauth2.device.authorization.grant.enabled": false,
+        "oidc.ciba.grant.enabled": false,
+        "post.logout.redirect.uris": "+"
+      },
+      "alwaysDisplayInConsole": false,
+      "rootUrl": "",
+      "baseUrl": "",
+      "redirectUris": [
+        "https://oauth.pstmn.io/v1/callback",
+        "http://localhost:5137/*"
+      ],
+      "webOrigins": [
+        "+"
+      ]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "custom-attributes",
+      "description": "Atributos customizados dos Usuários",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": true,
+        "display.on.consent.screen": true,
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": true,
+            "multivalued": true,
+            "user.attribute": "foo",
+            "id.token.claim": true,
+            "access.token.claim": true,
+            "claim.name": "groups",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": true,
+            "multivalued": true,
+            "user.attribute": "foo",
+            "access.token.claim": true,
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "protocol": "openid-connect",
+          "clientId": "starter-api-observabilidade",
+          "name": "STARTER - Observabilidade",
+          "description": "",
+          "publicClient": false,
+          "authorizationServicesEnabled": false,
+          "serviceAccountsEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": true,
+          "standardFlowEnabled": true,
+          "frontchannelLogout": true,
+          "attributes": {
+            "saml_idp_initiated_sso_url_name": "",
+            "oauth2.device.authorization.grant.enabled": false,
+            "oidc.ciba.grant.enabled": false
+          },
+          "alwaysDisplayInConsole": false,
+          "rootUrl": "",
+          "baseUrl": "",
+          "serviceAccountAttributes": {
+            "application.type": "CL"
+          },
+          "roles": [
+            {
+              "clientName": "master",
+              "roles": [
+                "observabilidade-sistemas"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "relacionado-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": true,
+            "userinfo.token.claim": true,
+            "user.attribute": "application.relacionadoId",
+            "id.token.claim": true,
+            "access.token.claim": true,
+            "claim.name": "application.relacionadoId",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "client roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": true,
+            "multivalued": true,
+            "user.attribute": "foo",
+            "access.token.claim": true,
+            "claim.name": "resource_access.${client_id}.roles",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "type",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": true,
+            "userinfo.token.claim": true,
+            "user.attribute": "application.type",
+            "id.token.claim": true,
+            "access.token.claim": true,
+            "claim.name": "application.type",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "realmRoles": [
+    {
+      "name": "notificacao-sistemas",
+      "description": "Notificações",
+      "composite": false,
+      "clientRole": false,
+      "attributes": {
+        "type": [
+          "CL"
+        ]
+      }
+    },
+    {
+      "name": "observabilidade-sistemas",
+      "description": "Observabilidade",
+      "composite": false,
+      "clientRole": false,
+      "attributes": {
+        "type": [
+          "CL"
+        ]
+      }
+    },
+    {
+      "name": "admin-sistemas",
+      "description": "Acesso Total",
+      "composite": false,
+      "clientRole": false,
+      "attributes": {
+        "type": [
+          "CL"
+        ]
+      }
+    },
+    {
+      "name": "usuarios-sistemas",
+      "description": "Gestão de Usuários",
+      "composite": false,
+      "clientRole": false,
+      "attributes": {
+        "type": [
+          "ST"
+        ]
+      }
+    },
+    {
+      "name": "grupos-sistemas",
+      "description": "Gestão de Grupos",
+      "composite": false,
+      "clientRole": false,
+      "attributes": {
+        "type": [
+          "ST"
+        ]
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "Administradores",
+      "roles": [
+        "usuarios-sistemas",
+        "grupos-sistemas"
+      ],
+      "attributes": {
+        "type": [
+          "ST"
+        ]
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "administrador@dummy.comx",
+      "password": "1234",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Sistemas",
+      "lastName": ".",
+      "email": "administrador@dummy.comx",
+      "attributes": {
+        "application.type": [
+          "ST"
+        ]
+      },
+      "roles": [
+        "admin-sistemas"
+      ]
+    }
+  ]
+}

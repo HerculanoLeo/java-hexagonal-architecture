@@ -1,0 +1,40 @@
+server:
+  port: 9000
+
+spring:
+  datasource:
+    username: develop
+    password: 123
+    url: jdbc:postgresql://localhost:5432/db_starter
+  liquibase:
+    contexts: dev
+    user: liquibase
+    password: 123
+  devtools:
+    livereload:
+      port: 40002
+
+logging:
+  file:
+    name: ./logs/${spring.application.name}.log
+
+api:
+  sistema:
+    redirect-uri: http://localhost:5137
+  notificacao:
+    cron-reenvio: 0 */15 * * * *
+    email:
+      max-tentativas: 5
+      enabled: false
+  web:
+    cors:
+      allowed-origins:
+        - 'http://localhost:5137'
+  oauth:
+    keycloak:
+      url: https://keycloak.dummy.com
+      realm: starter
+      client-id: starter-cadastros
+      client-secret: dummy-secret
+      gran-type: client_credentials
+      client-id-users: webapp
