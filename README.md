@@ -2,7 +2,7 @@
 
 Demonstração pública de **monolito modular** com **DDD** e **Arquitetura Hexagonal** (Ports & Adapters): backend Spring Boot + frontend TanStack Start (BFF).
 
-> Este repositório **anonimizado** — sem credenciais reais e sem referências a empresas/clientes, espelha a arquitetura de um projeto real que gerencio com Arquiteto de Software.
+> Este repositório **anonimizado** — sem credenciais reais e sem referências a empresas/clientes, espelha a arquitetura de um projeto real que gerencio como Arquiteto de Software.
 
 ## Estrutura
 
