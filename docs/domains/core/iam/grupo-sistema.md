@@ -21,7 +21,7 @@ Grupos de permissão que agregam roles do catálogo. Usuários são associados a
 ### Backend
 
 ```
-backend/domain-backoffice/src/main/java/com/herculanoleo/starter/plataformadmin/grupos/
+backend/domain-backoffice/src/main/java/com/lodh8/starter/backoffice/grupos/
   api/controller/GrupoSistemaController.java
   app/impl/GrupoSistemaServiceImpl.java
   domain/GrupoSistema.java
@@ -31,9 +31,9 @@ backend/domain-backoffice/src/main/java/com/herculanoleo/starter/plataformadmin/
 ### Frontend
 
 ```
-frontend/src/entities/grupo/
-frontend/src/components/pages/administracao/grupos/
-frontend/src/routes/.../administracao/acesso/grupos/
+frontend/gestao/src/entities/grupo/
+frontend/gestao/src/components/pages/administracao/grupos/
+frontend/gestao/src/routes/.../administracao/acesso/grupos/
 ```
 
 ## Onde encontrar
@@ -42,7 +42,7 @@ frontend/src/routes/.../administracao/acesso/grupos/
 |------------|------------------------------------------------------------------|
 | Controller | `domain-backoffice/.../GrupoSistemaController.java`              |
 | Service    | `domain-backoffice/.../GrupoSistemaServiceImpl.java`             |
-| BFF        | `frontend/src/entities/grupo/api/grupo.service.ts`               |
+| BFF        | `frontend/gestao/src/entities/grupo/api/grupo.service.ts`               |
 | Tests      | `domain-backoffice/src/test/.../GrupoSistemaControllerTest.java` |
 
 ## Contratos

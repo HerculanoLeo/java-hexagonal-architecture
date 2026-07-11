@@ -21,13 +21,13 @@ vazio.
 
 | Artefato     | Path                                                |
 |--------------|-----------------------------------------------------|
-| Entity       | `frontend/src/entities/menu/`                       |
-| Server fn    | `frontend/src/entities/menu/api/menu.server-fn.ts`  |
-| Repository   | `frontend/src/entities/menu/api/menu.repository.ts` |
-| Defaults     | `frontend/src/entities/menu/lib/menu.defaults.ts`   |
-| Tree utils   | `frontend/src/entities/menu/lib/menu-tree.utils.ts` |
-| Prisma model | `frontend/prisma/schema.prisma` → `Menu`            |
-| AppShell     | `frontend/src/components/widgets/app-shell/`        |
+| Entity       | `frontend/gestao/src/entities/menu/`                       |
+| Server fn    | `frontend/gestao/src/entities/menu/api/menu.server-fn.ts`  |
+| Repository   | `frontend/gestao/src/entities/menu/api/menu.repository.ts` |
+| Defaults     | `frontend/gestao/src/entities/menu/lib/menu.defaults.ts`   |
+| Tree utils   | `frontend/gestao/src/entities/menu/lib/menu-tree.utils.ts` |
+| Prisma model | `frontend/gestao/prisma/schema.prisma` → `Menu`            |
+| AppShell     | `frontend/gestao/src/components/widgets/app-shell/`        |
 
 ## Contratos
 

@@ -24,7 +24,7 @@ Listar sessões ativas (better-auth), agrupadas por usuário, e revogar sessão 
 
 | Artefato      | Path                                                         |
 |---------------|--------------------------------------------------------------|
-| Entity        | `frontend/src/entities/session/`                             |
+| Entity        | `frontend/gestao/src/entities/session/`                             |
 | Server fn     | `usuarios-online.server-fn.ts`                               |
 | Repository    | `usuarios-online.repository.ts`                              |
 | Keycloak sync | `keycloak-session.server.ts`                                 |

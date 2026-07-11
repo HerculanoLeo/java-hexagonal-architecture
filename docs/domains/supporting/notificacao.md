@@ -21,7 +21,7 @@ cron.
 ## Estrutura de código
 
 ```
-backend/domain-notification/src/main/java/com/herculanoleo/starter/notification/
+backend/domain-notification/src/main/java/com/lodh8/starter/notification/
   api/controller/NotificacaoController.java
   app/NotificacaoService.java
   domain/events/NotificacaoBoasVindasEvent.java

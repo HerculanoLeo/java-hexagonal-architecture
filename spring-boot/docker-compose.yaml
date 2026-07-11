@@ -36,3 +36,21 @@ services:
       - ${FILE_PATH}:/servers/docker/app/files/
     depends_on:
       - otel-collector
+
+  gestao:
+    image: starter-webapp-gestao:${VERSION}
+    container_name: starter-webapp-gestao
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - CADASTROS_URL=http://starter-api-cadastros:8080/api/v1
+      - BETTER_AUTH_URL=${GESTAO_WEBAPP_URL}
+    hostname: starter-webapp-gestao
+    networks:
+      - starter-network
+    ports:
+      - '5137:3000'
+    depends_on:
+      - cadastros

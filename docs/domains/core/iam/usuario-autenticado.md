@@ -24,7 +24,7 @@ Self-service do usuário logado: consultar/atualizar perfil, grupo associado e t
 ### Backend
 
 ```
-backend/domain-authorize/src/main/java/com/herculanoleo/starter/authorize/
+backend/domain-authorize/src/main/java/com/lodh8/starter/authorize/
   api/controller/UsuarioAutenticadoController.java
   app/impl/UsuarioAutenticadoServiceImpl.java
   infra/authentication/
@@ -33,11 +33,11 @@ backend/domain-authorize/src/main/java/com/herculanoleo/starter/authorize/
 ### Frontend
 
 ```
-frontend/src/entities/auth/
+frontend/gestao/src/entities/auth/
   api/auth.service.ts
   model/meus-dados-*.schema.ts
-frontend/src/routes/(authenticated)/me/
-frontend/src/components/pages/me/
+frontend/gestao/src/routes/(authenticated)/me/
+frontend/gestao/src/components/pages/me/
 ```
 
 ## Onde encontrar
@@ -45,8 +45,8 @@ frontend/src/components/pages/me/
 | Artefato   | Path                                                     |
 |------------|----------------------------------------------------------|
 | Controller | `domain-authorize/.../UsuarioAutenticadoController.java` |
-| BFF        | `frontend/src/entities/auth/api/auth.service.ts`         |
-| Auth infra | `frontend/src/shared/auth/`                              |
+| BFF        | `frontend/gestao/src/entities/auth/api/auth.service.ts`         |
+| Auth infra | `frontend/gestao/src/shared/auth/`                              |
 | Tests      | `domain-authorize/src/test/.../`                         |
 
 ## Contratos

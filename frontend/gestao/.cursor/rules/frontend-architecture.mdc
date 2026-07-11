@@ -1,0 +1,72 @@
+---
+description: Estrutura arquitetural, padrões FSD e convenções de código do frontend
+alwaysApply: true
+---
+
+# Frontend — Architecture
+
+- Trabalhe neste projeto como uma base reutilizável para painéis administrativos SaaS multi-cliente e multi-usuário.
+- Use React 19, TanStack Start/Router, TanStack Query, TypeScript strict, Tailwind CSS v4 e shadcn/ui como stack principal.
+- Use `pnpm` para scripts e dependências. Para novos componentes shadcn, use `pnpm dlx shadcn@latest add <component>`.
+- Preserve o roteamento baseado em arquivos do TanStack Router. Não edite manualmente `src/routeTree.gen.ts`; gere rotas com o script do projeto quando necessário.
+- Prefira imports pelos aliases já configurados: `@components/*`, `@entities/*`, `@shared/*`, `@configurations/*`, `@routes/*`, `@hooks/*` e similares.
+- Para arquivos que não sejam componentes visuais React, use kebab-case no padrão `{nome-do-recurso}.{tipo-do-recurso}.ts|tsx`, como `usuarios.client-service.ts`, `auth.context.tsx` ou `axios.configuration.ts`.
+- Para componentes visuais React, crie uma pasta com o nome do componente e coloque o componente principal em `index.tsx`, como `Button/index.tsx` ou `AppShell/index.tsx`.
+- A única exceção para nomes/estrutura de arquivos são as rotas em `src/routes`, que devem seguir as convenções do TanStack Router.
+- Coloque componentes primitivos do shadcn em `src/components/ui`. Não altere sua API sem necessidade; componha wrappers em camadas superiores.
+- Coloque componentes puramente visuais, genéricos e reutilizáveis diretamente em `src/components`, fora de `features`, quando não pertencerem a um domínio específico.
+
+## Feature-Sliced Design (FSD)
+
+Adote FSD adaptado ao TanStack Start, Prisma e shadcn — **sem mover caminhos fixos das libs**:
+
+- **Congelado:** `src/routes`, `src/router.tsx`, `prisma/`, `src/generated/prisma/`, `src/components/ui`, `src/components/forms`, `components.json`.
+- **`app` → `src/routes` + `src/configurations`:** define URL, `beforeLoad`, guards, `loader` e aponta para `*Page` via `component`. Rotas finas; sem JSX de produto.
+- **`pages` → `src/components/pages/<dominio>/`:** composição de tela (`*Page`). Import público via `index.ts` do slice quando possível.
+- **`widgets` → `src/components/widgets/`:** blocos reutilizáveis (`app-shell`, `content-layout`, `data-table`, `common-layout`, `status-badge`).
+- **`features` → `src/components/features/<dominio>/`:** formulários, buscas e ações de domínio (sem `*Page`).
+- **`entities` → `src/entities/<entidade>/`:** segmentos `model/`, `api/`, `lib/`. Export público em `index.ts`. Catálogo e regras de domínio em [`frontend-domains.mdc`](frontend/gestao/.cursor/rules/frontend-domains.mdc) e [`docs/domains/`](../../../../docs/domains/README.md).
+- **Imports dentro de `entities`:** arquivos internos de um slice (`model/`, `api/`, `lib/`) nunca importam o próprio barrel `@entities/<slice>`. Use imports relativos dentro do slice; reserve `@entities/<slice>` para camadas externas.
+- **`shared` → `src/shared/` + `src/components/ui` + `src/components/forms`:** infra transversal. Pode importar `entities` para tipos/utilitários de UI; nunca importa camadas superiores (`features`, `widgets`, `pages`, `app`).
+- Contratos transversais ficam em `src/shared/model/` (`by-id.schema`, `status.enum`, `data-table-page.dto`).
+- Loaders importam de `@entities/<entidade>` ou barrels públicos — não de internals de features.
+- `usePageTitle` fica em `@components/widgets/app-shell`; não em `shared`.
+
+## Listagens e UI administrativa
+
+- Use `@components/widgets/data-table` em vez de montar `<table>` manualmente.
+  - Declare colunas com `DataTableColumn`; células customizadas via `body` e ordenação customizada via `sortValue`.
+  - Filtros e ações de domínio ficam na `*Page`, preferencialmente dentro de `DataTableToolbar`.
+  - Paginação e ordenação client-side ficam no `DataTable`; modo lazy/server-side deve usar os contratos em `src/shared/model/data-table-page.dto.ts`.
+- Breadcrumbs ficam em `src/components/pages/<dominio>/lib/`, preferencialmente via `ContentLayout`, com itens `{ label: string; to?: string }`.
+- Formatadores de valores para UI ficam em `src/shared/ui/formatters`, no padrão `{dominio}.formatters.ts`.
+- Status visuais usam [`StatusBadge`](frontend/gestao/src/components/widgets/status-badge/index.tsx) com `StatusDefinition` em [`shared/ui/status`](frontend/gestao/src/shared/ui/status).
+  - Novos domínios criam mapa próprio com `defineStatusMap`; só extraem preset para `shared/ui/status/status.definitions.ts` se reutilizado em 2+ domínios.
+  - Labels de sort, forms e badge devem vir do mesmo mapa via `createStatusFormatter`.
+
+## AppShell e layout autenticado
+
+- Use `src/configurations` para integrações e providers técnicos (TanStack Query, devtools, runtime).
+- Separe rotas nos grupos: `(unauthenticated)`, `(authenticated)` e `(common)`.
+- Dados do usuário autenticado e informações gerais da área autenticada devem vir de loaders de rota. Evite passar esse tipo de dado por props através de múltiplos componentes de layout.
+- O layout administrativo principal deve nascer em torno de `/(authenticated)/_painel-administrativo`, com header/topbar, seletor de cliente/tenant, área de usuário e navegação por módulos.
+- Use `AppShell` de `@components/widgets/app-shell` como layout padrão da área autenticada administrativa. Sidebar fixa no desktop quando habilitada por configuração server-side; drawer no mobile.
+- A topbar reserva espaço para logo retangular (`svg` ou `png`). Menu horizontal parametrizado por DTO de loaders/BFF; montagem e filtragem por roles server-side via `createServerFn`.
+- Arquivos que exportam `createServerFn` e são importados por rotas **não** devem usar o padrão `*.server.*` (rotas isomórficas bloqueiam no bundle cliente).
+- Quando a sidebar estiver ativa, o menu horizontal da topbar deve sumir. No mobile, botão hamburguer à esquerda da logo; drawer com `Drawer` do shadcn.
+- Submenus da sidebar iniciam retraídos e abrem de cima para baixo com animação suave.
+- Não adicione busca na topbar enquanto a busca global não for habilitada.
+- Seletor de tema: `Claro`, `Escuro`, `Sistema` (padrão). Persistir entre sessões; carregar síncrono de `data-theme`/`localStorage`.
+- Bloco de perfil na topbar: menu com `Meus Dados` e `Sair` (destaque vermelho).
+
+## Princípios gerais
+
+- Modele a interface pensando em multi-tenant: organização ativa, troca de cliente, permissões por usuário e estados vazios por escopo.
+- Prefira componentes responsivos desde o início.
+- Use tokens shadcn/Tailwind (`background`, `foreground`, `card`, `muted`, `border`, `sidebar`, etc.) antes de cores arbitrárias.
+- Estados de UI explícitos: loading, empty, error, unauthorized e disabled nos fluxos principais.
+- Prefira composição pequena e legível em vez de componentes grandes.
+- Não introduza biblioteca nova de estado, formulários, tabelas ou autenticação sem necessidade clara.
+- Antes de criar novas pastas, valide a camada FSD: `pages` → telas, `features` → interações, `entities` → modelo/API, `widgets` → blocos compostos, `shared` → infra.
+- Testes seguem [`frontend-testing.mdc`](frontend/gestao/.cursor/rules/frontend-testing.mdc).
+- Domínios, entity slices e fronteira BFF/backend: [`frontend-domains.mdc`](frontend/gestao/.cursor/rules/frontend-domains.mdc) e [`docs/domains/`](../../../../docs/domains/README.md).

@@ -1,6 +1,6 @@
 # Catálogo de Domínios
 
-Documentação detalhada por domínio e subdomínio (repositório público anonimizado; frontend omitido) para *
+Documentação detalhada por domínio e subdomínio (repositório público anonimizado) para *
 *desenvolvedores** e **agentes de IA**. Complementa as Cursor rules (concisas) com paths reais, regras de negócio e guia
 de implementação futura.
 
@@ -10,7 +10,7 @@ de implementação futura.
 2. Abra o `.md` do subdomínio para paths, contratos e dependências.
 3. Consulte as rules por camada para padrões de código:
     - Backend: [`spring-boot/backend/.cursor/rules/`](../../spring-boot/backend/.cursor/rules/)
-    - Frontend: omitido neste repositório — specs em [`bff/`](bff/README.md)
+    - Frontend: [`frontend/gestao/.cursor/rules/`](../../frontend/gestao/.cursor/rules/)
 
 ## Classificação DDD
 
@@ -30,10 +30,10 @@ de implementação futura.
 | Subdomínio          | Doc                                                       | Backend             | Frontend             |
 |---------------------|-----------------------------------------------------------|---------------------|----------------------|
 | Identity (Keycloak) | [identity-keycloak.md](core/iam/identity-keycloak.md)     | `domain-identity`   | —                    |
-| Usuario Sistema     | [usuario-sistema.md](core/iam/usuario-sistema.md)         | `domain-backoffice` | — (frontend omitido) |
-| Grupo Sistema       | [grupo-sistema.md](core/iam/grupo-sistema.md)             | `domain-backoffice` | — (frontend omitido) |
-| Role Sistema        | [role-sistema.md](core/iam/role-sistema.md)               | `domain-backoffice` | — (frontend omitido) |
-| Usuario Autenticado | [usuario-autenticado.md](core/iam/usuario-autenticado.md) | `domain-authorize`  | — (frontend omitido) |
+| Usuario Sistema     | [usuario-sistema.md](core/iam/usuario-sistema.md)         | `domain-backoffice` | `entities/usuario` |
+| Grupo Sistema       | [grupo-sistema.md](core/iam/grupo-sistema.md)             | `domain-backoffice` | `entities/grupo` |
+| Role Sistema        | [role-sistema.md](core/iam/role-sistema.md)               | `domain-backoffice` | `entities/role` |
+| Usuario Autenticado | [usuario-autenticado.md](core/iam/usuario-autenticado.md) | `domain-authorize`      | `entities/auth` |
 
 Visão do bounded context: [core/iam/README.md](core/iam/README.md)
 

@@ -1,0 +1,16 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.env.local
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+coverage
+__unconfig*
+todos.json
+.idea/
+.pnpm-store

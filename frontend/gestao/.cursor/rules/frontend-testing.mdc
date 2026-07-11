@@ -1,0 +1,72 @@
+---
+description: Estratégia de testes unitários do frontend (Vitest). Integração e E2E ficam pendentes.
+globs: frontend/gestao/**/*.test.ts,frontend/gestao/**/*.test.tsx
+alwaysApply: false
+---
+
+# Testes — Frontend
+
+Arquitetura e camadas FSD: [`frontend-architecture.mdc`](frontend/gestao/.cursor/rules/frontend-architecture.mdc). Domínios: [`frontend-domains.mdc`](frontend/gestao/.cursor/rules/frontend-domains.mdc).
+
+## Escopo fechado (unitário)
+
+A suíte unitária cobre **código TypeScript puro** e **widgets isoláveis**. Não expandir para `*Page`, rotas, server-fn, repositórios ou serviços sem pedido explícito.
+
+### O que testar com Vitest
+
+| Camada | Onde | O quê |
+|--------|------|-------|
+| `entities/*/model/` | `*.schema.test.ts` | Schemas Zod, `.refine()`, parsers (`parse*Form`) |
+| `entities/*/model/` | `*-dto.schema.test.ts` | Validação de DTOs da API |
+| `entities/*/lib/` | `*.test.ts` | Utils, defaults, mappers, cache wrappers |
+| `shared/**` | `*.test.ts` | Auth, formatters, guards, theme, toast, forms |
+| `components/widgets/**` | `*.test.ts(x)` | Utils (`data-table.utils`), hooks (`use-data-table-state`), `parseDataTableChildren` |
+| RTL seletivo | `*.test.tsx` | Só widgets **sem** `getRouteApi` / `useLoaderData` — ex.: `DataTable`, `AppShellFooter`, `AppShellFrame` (com mock de filhos/contexto) |
+
+### O que NÃO testar (fora do escopo unitário)
+
+- `src/routes/**`, `*Page`, `features/**` com loaders
+- `*.server-fn.ts`, `*.repository.ts`, `*.service.ts`, `*.queries.ts`
+- `*.dto.ts` só com tipos/interfaces
+- `src/generated/**`, `routeTree.gen.ts`
+- Componentes que dependem de `Link`, `useLocation`, `getRouteApi().useLoaderData()` — mockar só se houver pedido explícito
+
+## Convenções
+
+- Arquivo co-localizado: `menu-tree.utils.ts` → `menu-tree.utils.test.ts`
+- Setup global: `src/test/setup.ts` (`jest-dom`, `cleanup`)
+- Config separada: `vitest.config.ts` (não carrega plugins TanStack Start/Nitro)
+- Mocks: `vi.mock()` para `sonner`, `AppShellProvider`, filhos pesados em testes de layout
+- Fixtures locais no arquivo de teste; sem banco, sem Prisma
+
+## Comandos
+
+```bash
+pnpm test              # CI — execução única
+pnpm test:watch        # desenvolvimento
+pnpm test:coverage     # relatório (terminal + coverage/index.html)
+```
+
+Dependências alinhadas: `vitest` e `@vitest/coverage-v8` na **mesma versão**.
+
+## Cobertura (`pnpm test:coverage`)
+
+O relatório mede **apenas o escopo unitário** — configurado em `vitest.config.ts` (`unitCoverageInclude` / `unitCoverageExclude`). Fora do relatório: rotas, pages, features, UI shadcn, server-fn, repositórios, serviços e componentes de shell não testados por RTL.
+
+~**182 testes** em **46 arquivos**. A cobertura do escopo unitário deve ser alta; vermelho em arquivos fora da whitelist indica lacuna real, não ruído de `*Page` ou `*.server-fn.ts`.
+
+## Pendências (não implementar sem pedido)
+
+| Tipo | Status | Quando |
+|------|--------|--------|
+| **Integração** | Pendente | server-fn + repositório com mocks de Prisma/API |
+| **E2E** | Pendente | Playwright — fluxos críticos (login, CRUD usuário, configurações) |
+| **`renderWithProviders`** | Pendente | Router + Query para RTL de componentes acoplados ao TanStack Start |
+
+Prioridade futura: E2E nos fluxos de página; unitário já protege regras de negócio em `lib/` e `model/`.
+
+## Ao alterar código
+
+1. Nova função pura ou schema em `entities/` ou `shared/` → adicionar ou atualizar `*.test.ts` no mesmo PR
+2. Novo widget reutilizável com lógica testável → utils/hook primeiro; RTL só se isolável
+3. Nova `*Page` ou rota → **não** criar teste unitário de componente; documentar cenário para E2E futuro

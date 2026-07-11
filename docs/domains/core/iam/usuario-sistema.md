@@ -31,7 +31,7 @@ Orquestra `domain-identity` (Keycloak) com persistência local de metadados.
 ### Backend
 
 ```
-backend/domain-backoffice/src/main/java/com/herculanoleo/starter/plataformadmin/usuarios/
+backend/domain-backoffice/src/main/java/com/lodh8/starter/backoffice/usuarios/
   api/controller/UsuarioSistemaController.java
   api/dtos/
   app/impl/UsuarioSistemaServiceImpl.java
@@ -39,20 +39,20 @@ backend/domain-backoffice/src/main/java/com/herculanoleo/starter/plataformadmin/
   domain/event/UsuarioSistemaCriadoEvent.java
   infra/persistence/UsuarioSistemaEntity.java
   infra/UsuarioSistemaListeners.java
-backend/domain-backoffice/src/main/resources/db/changelog/plataformadmin/
+backend/domain-backoffice/src/main/resources/db/changelog/backoffice/
 ```
 
-Persistência local: schema PostgreSQL `plataformadmin`, tabela `tb_sistema_usuario` (PK `uuidv7()`).
+Persistência local: schema PostgreSQL `backoffice`, tabela `tb_sistema_usuario` (PK `uuidv7()`).
 
 ### Frontend
 
 ```
-frontend/src/entities/usuario/
+frontend/gestao/src/entities/usuario/
   api/usuario.service.ts
   api/usuario.queries.ts
   model/usuario*.schema.ts
-frontend/src/components/pages/administracao/usuarios/
-frontend/src/routes/(authenticated)/administracao/acesso/usuarios/
+frontend/gestao/src/components/pages/administracao/usuarios/
+frontend/gestao/src/routes/(authenticated)/administracao/acesso/usuarios/
 ```
 
 ## Onde encontrar
@@ -62,7 +62,7 @@ frontend/src/routes/(authenticated)/administracao/acesso/usuarios/
 | Controller | `domain-backoffice/.../UsuarioSistemaController.java`              |
 | Service    | `domain-backoffice/.../UsuarioSistemaServiceImpl.java`             |
 | Listener   | `domain-backoffice/.../UsuarioSistemaListeners.java`               |
-| BFF proxy  | `frontend/src/entities/usuario/api/usuario.service.ts`             |
+| BFF proxy  | `frontend/gestao/src/entities/usuario/api/usuario.service.ts`             |
 | Tests      | `domain-backoffice/src/test/.../UsuarioSistemaControllerTest.java` |
 
 ## Contratos

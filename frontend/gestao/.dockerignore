@@ -1,0 +1,12 @@
+node_modules
+.env
+.env.*
+.git
+.gitignore
+README.md
+*.log
+coverage
+.vinxi
+.output
+.nitro
+.tanstack

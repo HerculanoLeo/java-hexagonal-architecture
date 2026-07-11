@@ -37,7 +37,7 @@ api-cadastros (agrega todos)
 ## Persistência / Liquibase
 
 - Changelogs por módulo em `domain-*/src/main/resources/db/changelog/{domain}/`; master em `api-cadastros`.
-- Schemas de domínio: `plataformadmin`, `notification`, `location`, `security`. Infra Modulith:
+- Schemas de domínio: `backoffice`, `notification`, `location`, `security`. Infra Modulith:
   `public.event_publication`.
 - Squash de baseline: resetar o banco (`DROP SCHEMA` / recriar DB + limpar `databasechangelog*`) antes de subir a API.
 
@@ -90,7 +90,7 @@ cd backend && mvn -pl api-cadastros -am spring-boot:run   # subir API (requer en
 4. Regras de negócio: SentinelFlow em `app/*Validator` (Bean Validation nos DTOs).
 5. Comunicação cross-module: named interfaces ou eventos.
 6. Atualizar testes (`*ServiceImplTest`, `*ControllerTest`).
-7. Se houver frontend consumidor, espelhar o contrato lá.
+7. Espelhar contrato no frontend se expor API nova.
 8. Atualizar doc do subdomínio se regras mudarem.
 
 ## Checklist — novo domínio

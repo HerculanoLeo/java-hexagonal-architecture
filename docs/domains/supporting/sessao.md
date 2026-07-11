@@ -20,7 +20,7 @@ Usuários online após revogar sessão better-auth.
 ## Estrutura de código
 
 ```
-backend/domain-security/src/main/java/com/herculanoleo/starter/security/sessao/
+backend/domain-security/src/main/java/com/lodh8/starter/security/sessao/
   api/controller/SessaoController.java
   app/SessaoService.java
   app/impl/SessaoServiceImpl.java
@@ -33,7 +33,7 @@ backend/domain-security/src/main/java/com/herculanoleo/starter/security/sessao/
 | Controller | `domain-security/.../sessao/api/controller/SessaoController.java` |
 | Service    | `domain-security/.../sessao/app/impl/SessaoServiceImpl.java`      |
 | Identity   | `UsuarioService.invalidateSessions` (`domain-identity`)           |
-| BFF        | `frontend/src/entities/session/api/keycloak-session.server.ts`    |
+| BFF        | `frontend/gestao/src/entities/session/api/keycloak-session.server.ts`    |
 
 ## Contratos
 

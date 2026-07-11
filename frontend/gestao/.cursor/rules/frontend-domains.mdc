@@ -1,0 +1,82 @@
+---
+description: Regras de negócio, entity slices e catálogo de domínios do frontend (BFF)
+globs: frontend/gestao/src/entities/**
+alwaysApply: false
+---
+
+# Frontend — Domains
+
+Referência detalhada por subdomínio: [`docs/domains/`](../../../../docs/domains/README.md).
+
+## Fronteira BFF vs backend Java
+
+| Tipo | Onde | Exemplos |
+|------|------|----------|
+| **Proxy Cadastros** | `createServerFn` + `fetchCadastros` | usuario, grupo, role, auth (me/senha) |
+| **Prisma local** | `*.repository.ts` + schema `frontend` | menu, platform-settings, session |
+| **OAuth** | better-auth + Keycloak | login em `shared/auth/` |
+
+Proxy usa [`cadastros.server.ts`](frontend/gestao/src/shared/api/cadastros/cadastros.server.ts) com Bearer token. Base URL: `CADASTROS_URL`, prefixo backend `/api/v1`.
+
+## Entity slices atuais
+
+| Slice | Camada | Backend / Prisma | Rotas principais |
+|-------|--------|------------------|------------------|
+| `usuario` | Proxy | `/sistema/usuario` | `/administracao/acesso/usuarios` |
+| `grupo` | Proxy | `/sistema/grupo` | `/administracao/acesso/grupos` |
+| `role` | Proxy | `/sistema/roles` | (picker em grupos) |
+| `auth` | Proxy | `/auth/me`, `/auth/grupo`, `/auth/me/senha` | `/me/dados`, `/me/senha` |
+| `menu` | Prisma | tabela `Menu` | AppShell (todos autenticados) |
+| `platform-settings` | Prisma | tabela `PlatformSettings` | `/administracao/configuracoes`, layout root |
+| `session` | Prisma + API Java (Keycloak) | tabela `Session`; revogação chama `DELETE /seguranca/sessoes/{identityId}` | `/administracao/seguranca/usuarios-online` |
+| `historico-login` | Proxy | `/seguranca/historico-logins` | `/administracao/seguranca/historico-logins` |
+
+Auth transversal (`shared/auth/`): guards, permissões `SISTEMAS`, sessão OAuth — ver [`docs/domains/bff/auth.md`](../../../../docs/domains/bff/auth.md).
+
+## Estrutura de entity slice
+
+```
+src/entities/<entidade>/
+  model/          # DTOs, schemas Zod (*.schema.ts, *.dto.ts)
+  api/            # *.service.ts, *.server-fn.ts, *.queries.ts, *.repository.ts
+  lib/            # utils, cache, defaults
+  index.ts        # barrel público
+```
+
+- DTOs e schemas Zod ficam em `model/`. Contratos transversais em `src/shared/model/`.
+- `createServerFn` de domínio fica em `api/`. Não usar sufixo `*.server.*` em arquivos importados por rotas.
+- Query helpers: `fetch*`, `get*QueryKey`, `invalidate*` em `*.queries.ts`.
+- Páginas usam `useQuery`/`useMutation` diretamente ou via helpers; loaders fazem prefetch com `queryClient.ensureQueryData`.
+
+## Dependências entre domínios
+
+- **Auth** → todos os slices autenticados (guards, token).
+- **Role** → **Grupo** (picker de permissões).
+- **Grupo** → **Usuario**, **Auth** (perfil com grupo).
+- **Platform-settings** → **Menu** (layout sidebar/hybrid), **AppShell** (branding).
+- **Menu** → referencia rotas de usuario, grupo, session, historico-login, configuracoes.
+
+## Nomenclatura
+
+- Alinhar termos PT com backend: `usuario`, `grupo`, `role`, `Status` (`ATIVO`/`INATIVO`).
+- Roles de guard: enum `SISTEMAS` em `shared/auth/auth-permissions.enum.ts` — espelha nomes de roles do Keycloak/backend.
+- `SISTEMAS.ADMIN` (`admin-sistemas`): super user; `hasRole` libera qualquer permissão. Não atribuir via grupo (`filterAssignableSistemaRoles`).
+- Paths de API proxy seguem backend: `/sistema/usuario`, `/sistema/grupo`, `/sistema/roles`, `/auth/me`.
+
+## Novo domínio no frontend
+
+1. Criar slice em `src/entities/<entidade>/` com `model/`, `api/`, `index.ts`.
+2. Se proxy: `*.service.ts` com `createServerFn` + `fetchCadastros`.
+3. Se Prisma: model em `prisma/schema.prisma`, `*.repository.ts`, migration.
+4. Adicionar `*Page` em `components/pages/`, features em `components/features/`, rota fina em `src/routes/`.
+5. Registrar entrada no menu (`entities/menu`) e role em `SISTEMAS` se admin.
+6. Documentar em [`docs/domains/`](../../../../docs/domains/README.md) e espelhar backend se houver API Java.
+
+## Roadmap (sem implementação completa)
+
+| Domínio | Status | Referência |
+|---------|--------|------------|
+| Multi-tenant / organização | Planejado | `docs/domains/roadmap/multi-tenant.md` |
+| Observabilidade admin | Planejado | `docs/domains/roadmap/observabilidade.md` |
+| Notificação admin UI | Planejado | `docs/domains/roadmap/notificacao-admin-ui.md` |
+| Registro self-service | Stub | `RegisterPage` placeholder |

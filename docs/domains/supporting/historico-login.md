@@ -27,13 +27,13 @@ PostgreSQL `security`.
 ## Estrutura de código
 
 ```
-backend/domain-security/src/main/java/com/herculanoleo/starter/security/historico/
+backend/domain-security/src/main/java/com/lodh8/starter/security/historico/
   api/controller/HistoricoLoginController.java
   app/impl/HistoricoLoginServiceImpl.java
   infra/persistence/HistoricoLoginEntity.java
 backend/domain-security/src/main/resources/db/changelog/security/
-frontend/src/entities/historico-login/
-frontend/src/shared/auth/auth.configuration.ts  # databaseHooks.session.create.after
+frontend/gestao/src/entities/historico-login/
+frontend/gestao/src/shared/auth/auth.configuration.ts  # databaseHooks.session.create.after
 ```
 
 ## Onde encontrar
@@ -43,7 +43,7 @@ frontend/src/shared/auth/auth.configuration.ts  # databaseHooks.session.create.a
 | Módulo     | `backend/domain-security`                                                              |
 | Controller | `.../HistoricoLoginController.java`                                                    |
 | Liquibase  | `domain-security/.../db/changelog/security/` (schema `security`, `tb_historico_login`) |
-| Entity FE  | `frontend/src/entities/historico-login/`                                               |
+| Entity FE  | `frontend/gestao/src/entities/historico-login/`                                               |
 | Hook login | `auth.configuration.ts` → `databaseHooks.session.create.after`                         |
 | Page       | `HistoricoLoginsListPage`                                                              |
 | Rota       | `/administracao/seguranca/historico-logins`                                            |

@@ -1,0 +1,57 @@
+import {Input} from '@components/ui/input';
+import type {FormInputProps} from '@components/forms';
+import {fieldErrors, FormFieldLayout, getFieldAriaDescribedBy, useFormContext,} from '@components/forms';
+
+import type {ComponentProps} from 'react';
+
+type Props = FormInputProps &
+	Omit<ComponentProps<typeof Input>, 'name' | 'value' | 'onBlur' | 'onChange'>;
+
+// TODO adicionar função de mascara ou procurar um componente pronto para isso
+
+export default function FormInputMask({
+	description,
+	label,
+	loading,
+	name,
+	required,
+	...inputProps
+}: Props) {
+	const { formApi } = useFormContext();
+
+	return (
+		<formApi.Field
+			name={name}
+			children={(field) => {
+				const errors = fieldErrors(field.state.meta);
+
+				return (
+					<FormFieldLayout
+						id={field.name}
+						label={label}
+						required={required}
+						description={description}
+						error={errors}
+					>
+						<Input
+							id={field.name}
+							name={field.name}
+							value={String(field.state.value ?? '')}
+							onBlur={field.handleBlur}
+							onChange={(event) => field.handleChange(event.target.value)}
+							aria-label={label}
+							aria-describedby={getFieldAriaDescribedBy({
+								description,
+								error: errors,
+								id: field.name,
+							})}
+							aria-invalid={!field.state.meta.isValid}
+							disabled={loading || inputProps.disabled}
+							{...inputProps}
+						/>
+					</FormFieldLayout>
+				);
+			}}
+		/>
+	);
+}

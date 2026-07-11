@@ -83,7 +83,7 @@ Biblioteca interna: **spring-mapper-enum 2.0.0** ([v2.x.x](https://github.com/He
 
 - JPA entities em `{subdominio}/infra/persistence/*Entity.java` com `@Table(schema = "...")` por bounded context.
 - **PostgreSQL 18+** obrigatório. PKs UUID de domínio: `DEFAULT uuidv7()` no banco; entity com `@Generated(event = EventType.INSERT)` + `insertable = false` (sem geração no cliente).
-- **Liquibase por módulo:** changelogs em `domain-*/src/main/resources/db/changelog/{domain}/` (convenção `YYYYMMDD-autor.yaml` + `YYYYMMDDHHMM-*.sql`). Master + `platform/` + `modulith/` (`event_publication` em `public`) em `api-cadastros`. Schemas de domínio: `plataformadmin`, `notification`, `location`, `security`.
+- **Liquibase por módulo:** changelogs em `domain-*/src/main/resources/db/changelog/{domain}/` (convenção `YYYYMMDD-autor.yaml` + `YYYYMMDDHHMM-*.sql`). Master + `platform/` + `modulith/` (`event_publication` em `public`) em `api-cadastros`. Schemas de domínio: `backoffice`, `notification`, `location`, `security`.
 - Grants: role MG (`CADASTROS_DB_MG_USERNAME`) owner; role app (`CADASTROS_DB_USERNAME`) via `${app_role}` (USAGE + DML + sequences). Squash de baseline exige reset do banco.
 - Specifications para buscas dinâmicas: `*EntitySpecification`.
 - Hibernate 7 + `hibernate-processor` (metamodel generation no annotation processor path).
@@ -97,7 +97,7 @@ Biblioteca interna: **spring-mapper-enum 2.0.0** ([v2.x.x](https://github.com/He
 
 ## Fronteira BFF
 
-O frontend (TanStack Start / BFF) não está neste repositório público; specs em `docs/domains/bff/`. Detalhes em [`backend-domains.mdc`](backend-domains.mdc).
+O frontend TanStack Start (`frontend/gestao/`) consome esta API via proxy autenticado. Permanece no BFF (Prisma): menu, platform-settings, sessões better-auth. Detalhes em [`backend-domains.mdc`](backend-domains.mdc).
 
 ## Decisões arquiteturais
 

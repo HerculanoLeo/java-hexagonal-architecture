@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["frontend"]
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+  @@schema("frontend")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+  @@schema("frontend")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+  @@schema("frontend")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+  @@schema("frontend")
+}
+
+enum LogoSource {
+  static
+  external
+
+  @@schema("frontend")
+}
+
+enum MenuLayout {
+  hybrid
+  sidebar
+
+  @@schema("frontend")
+}
+
+model PlatformSettings {
+  id                   String     @id @default("default")
+  projectName          String
+  appTitle             String
+  menuLayout           MenuLayout @default(hybrid)
+  logoSource           LogoSource @default(static)
+  logoUrl              String?
+  buttonSaveBg         String
+  buttonSaveHover      String
+  buttonActivateBg     String
+  buttonActivateHover  String
+  buttonBackBg         String
+  buttonBackHover      String
+  buttonBackForeground String
+  buttonDeleteBg         String
+  buttonDeleteHover      String
+  shellGradientFromLight String
+  shellGradientToLight   String
+  shellGradientFromDark  String
+  shellGradientToDark    String
+  primaryBgLight         String
+  primaryForegroundLight String
+  secondaryBgLight       String
+  secondaryForegroundLight String
+  primaryBgDark          String
+  primaryForegroundDark  String
+  secondaryBgDark        String
+  secondaryForegroundDark String
+  shellForegroundLight   String
+  shellMutedForegroundLight String
+  shellForegroundDark    String
+  shellMutedForegroundDark String
+  menuTitleActiveForegroundLight String
+  menuItemHoverBgLight   String
+  menuItemActiveBgLight  String
+  menuItemActiveForegroundLight String
+  menuSubmenuHoverBgLight String
+  menuSubmenuActiveBgLight String
+  menuSubmenuActiveForegroundLight String
+  menuTitleActiveForegroundDark String
+  menuItemHoverBgDark    String
+  menuItemActiveBgDark   String
+  menuItemActiveForegroundDark String
+  menuSubmenuHoverBgDark String
+  menuSubmenuActiveBgDark String
+  menuSubmenuActiveForegroundDark String
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  @@map("platform_settings")
+  @@schema("frontend")
+}
+
+model Menu {
+  id          String   @id
+  parentId    String?
+  parent      Menu?    @relation("MenuTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Menu[]   @relation("MenuTree")
+
+  label       String
+  description String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  enabled     Boolean  @default(true)
+
+  roles       String[] @default([])
+  route       String?
+  externalUrl String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([parentId, sortOrder])
+  @@map("menus")
+  @@schema("frontend")
+}

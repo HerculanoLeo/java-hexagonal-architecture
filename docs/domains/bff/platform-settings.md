@@ -19,13 +19,13 @@ Branding white-label: nome do projeto, logo, cores do tema, layout do menu (side
 
 | Artefato       | Path                                                           |
 |----------------|----------------------------------------------------------------|
-| Entity         | `frontend/src/entities/platform-settings/`                     |
+| Entity         | `frontend/gestao/src/entities/platform-settings/`                     |
 | Server fn      | `platform-settings.server-fn.ts`, `layout-config.server-fn.ts` |
 | Repository     | `platform-settings.repository.ts`                              |
 | Branding utils | `lib/layout-branding.utils.ts`                                 |
 | Prisma         | `PlatformSettings` model                                       |
-| UI             | `frontend/src/components/pages/administracao/configuracoes/`   |
-| Widget         | `frontend/src/components/widgets/layout-branding/`             |
+| UI             | `frontend/gestao/src/components/pages/administracao/configuracoes/`   |
+| Widget         | `frontend/gestao/src/components/widgets/layout-branding/`             |
 | Rota           | `/administracao/configuracoes`                                 |
 
 ## Contratos

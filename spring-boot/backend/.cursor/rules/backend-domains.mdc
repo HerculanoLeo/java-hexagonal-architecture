@@ -49,7 +49,7 @@ Referência detalhada por subdomínio: [`docs/domains/`](../../../../docs/domain
 | `domain-backoffice` | `shared::*`, `identity::*` (usuarios, grupos, roles), `authorize::*`, `notification::events` |
 | `domain-notification` | `shared::*` |
 | `domain-location` | `shared::*` |
-| `domain-security` | `shared::*`, `authorize::authorize-ports`, `authorize::domain`, `plataformadmin::usuarios`, `plataformadmin::usuarios-domain`, `identity::usuarios` |
+| `domain-security` | `shared::*`, `authorize::authorize-ports`, `authorize::domain`, `backoffice::usuarios`, `backoffice::usuarios-domain`, `identity::usuarios` |
 
 Admin consome eventos de notification apenas via pacote `notification::events`.
 

@@ -22,7 +22,7 @@ IdP aos demais módulos.
 ## Estrutura de código
 
 ```
-backend/domain-identity/src/main/java/com/herculanoleo/starter/identity/
+backend/domain-identity/src/main/java/com/lodh8/starter/identity/
   usuario/app/UsuarioService.java
   usuario/app/impl/UsuarioServiceImpl.java
   grupos/app/GrupoService.java

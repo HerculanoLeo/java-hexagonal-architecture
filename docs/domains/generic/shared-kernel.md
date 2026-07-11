@@ -22,7 +22,7 @@ Tipos, exceções, utilitários e infraestrutura de eventos compartilhados entre
 ## Onde encontrar
 
 ```
-backend/shared-kernel/src/main/java/com/herculanoleo/starter/shared/
+backend/shared-kernel/src/main/java/com/lodh8/starter/shared/
 backend/shared-kernel/src/test/java/...
 ```
 

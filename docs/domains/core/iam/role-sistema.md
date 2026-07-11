@@ -20,7 +20,7 @@ Catálogo read-only de permissões (roles) disponíveis para composição de gru
 ### Backend
 
 ```
-backend/domain-backoffice/src/main/java/com/herculanoleo/starter/plataformadmin/roles/
+backend/domain-backoffice/src/main/java/com/lodh8/starter/backoffice/roles/
   api/controller/RoleSistemaController.java
   app/impl/RoleSistemaServiceImpl.java
   infra/RoleSistemaMapperAdapter.java
@@ -29,7 +29,7 @@ backend/domain-backoffice/src/main/java/com/herculanoleo/starter/plataformadmin/
 ### Frontend
 
 ```
-frontend/src/entities/role/
+frontend/gestao/src/entities/role/
   api/role.service.ts
   model/role.dto.ts
 ```
@@ -39,8 +39,8 @@ frontend/src/entities/role/
 | Artefato      | Path                                                            |
 |---------------|-----------------------------------------------------------------|
 | Controller    | `domain-backoffice/.../RoleSistemaController.java`              |
-| BFF           | `frontend/src/entities/role/api/role.service.ts`                |
-| Permissões UI | `frontend/src/shared/auth/auth-permissions.enum.ts`             |
+| BFF           | `frontend/gestao/src/entities/role/api/role.service.ts`                |
+| Permissões UI | `frontend/gestao/src/shared/auth/auth-permissions.enum.ts`             |
 | Tests         | `domain-backoffice/src/test/.../RoleSistemaControllerTest.java` |
 
 ## Contratos

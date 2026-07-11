@@ -23,13 +23,13 @@ Login OAuth via Keycloak (better-auth), sessão, guards de rota, mapeamento de r
 
 | Artefato           | Path                                                    |
 |--------------------|---------------------------------------------------------|
-| Config better-auth | `frontend/src/shared/auth/auth.configuration.ts`        |
-| Session server     | `frontend/src/shared/auth/auth.session.server.ts`       |
-| Guards             | `frontend/src/shared/auth/auth-guards.server-fn.ts`     |
-| Permissões         | `frontend/src/shared/auth/auth-permissions.enum.ts`     |
-| API handler        | `frontend/src/routes/api/auth/$.ts`                     |
-| Login page         | `frontend/src/routes/(unauthenticated)/login.tsx`       |
-| Guard UI           | `frontend/src/components/features/auth/GuardComponent/` |
+| Config better-auth | `frontend/gestao/src/shared/auth/auth.configuration.ts`        |
+| Session server     | `frontend/gestao/src/shared/auth/auth.session.server.ts`       |
+| Guards             | `frontend/gestao/src/shared/auth/auth-guards.server-fn.ts`     |
+| Permissões         | `frontend/gestao/src/shared/auth/auth-permissions.enum.ts`     |
+| API handler        | `frontend/gestao/src/routes/api/auth/$.ts`                     |
+| Login page         | `frontend/gestao/src/routes/(unauthenticated)/login.tsx`       |
+| Guard UI           | `frontend/gestao/src/components/features/auth/GuardComponent/` |
 
 ## Contratos
 

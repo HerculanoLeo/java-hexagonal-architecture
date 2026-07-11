@@ -1,8 +1,5 @@
 # Domínios BFF
 
-> **Nota:** o código do frontend **não está incluído** neste repositório público. Estas specs descrevem o
-> contrato/estrutura esperada para quando o BFF for publicado.
-
 Domínios implementados exclusivamente no **TanStack Start** com persistência **Prisma** (schema `frontend`) ou auth
 OAuth local. Não possuem módulo Java equivalente.
 
@@ -23,7 +20,7 @@ OAuth local. Não possuem módulo Java equivalente.
 
 ## Schema Prisma
 
-`frontend/prisma/schema.prisma` — modelos `User`, `Session`, `Account`, `Menu`, `PlatformSettings`, …
+`frontend/gestao/prisma/schema.prisma` — modelos `User`, `Session`, `Account`, `Menu`, `PlatformSettings`, …
 
 ## Implementação futura
 
