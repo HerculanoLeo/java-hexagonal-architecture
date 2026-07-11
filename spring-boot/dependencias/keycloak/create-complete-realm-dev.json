@@ -19,7 +19,7 @@
       "auth": true,
       "envelopeFrom": "",
       "ssl": false,
-      "password": "1234",
+      "password": "futuromar1",
       "port": 587,
       "host": "smtp.dummy.com",
       "replyTo": "",
@@ -234,38 +234,6 @@
           }
         },
         {
-          "protocol": "openid-connect",
-          "clientId": "starter-api-observabilidade",
-          "name": "STARTER - Observabilidade",
-          "description": "",
-          "publicClient": false,
-          "authorizationServicesEnabled": false,
-          "serviceAccountsEnabled": true,
-          "implicitFlowEnabled": false,
-          "directAccessGrantsEnabled": true,
-          "standardFlowEnabled": true,
-          "frontchannelLogout": true,
-          "attributes": {
-            "saml_idp_initiated_sso_url_name": "",
-            "oauth2.device.authorization.grant.enabled": false,
-            "oidc.ciba.grant.enabled": false
-          },
-          "alwaysDisplayInConsole": false,
-          "rootUrl": "",
-          "baseUrl": "",
-          "serviceAccountAttributes": {
-            "application.type": "CL"
-          },
-          "roles": [
-            {
-              "clientName": "master",
-              "roles": [
-                "observabilidade-sistemas"
-              ]
-            }
-          ]
-        },
-        {
           "name": "relacionado-id",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
@@ -325,19 +293,8 @@
       }
     },
     {
-      "name": "observabilidade-sistemas",
-      "description": "Observabilidade",
-      "composite": false,
-      "clientRole": false,
-      "attributes": {
-        "type": [
-          "CL"
-        ]
-      }
-    },
-    {
       "name": "admin-sistemas",
-      "description": "Acesso Total",
+      "description": "Acesso Total (usuário principal — atribuído direto no usuário, não via grupo)",
       "composite": false,
       "clientRole": false,
       "attributes": {
@@ -367,6 +324,17 @@
           "ST"
         ]
       }
+    },
+    {
+      "name": "seguranca-historico-login-sistemas",
+      "description": "Histórico de logins",
+      "composite": false,
+      "clientRole": false,
+      "attributes": {
+        "type": [
+          "ST"
+        ]
+      }
     }
   ],
   "groups": [
@@ -386,7 +354,7 @@
   "users": [
     {
       "username": "administrador@dummy.comx",
-      "password": "1234",
+      "password": "dummy-password",
       "enabled": true,
       "emailVerified": true,
       "firstName": "Sistemas",

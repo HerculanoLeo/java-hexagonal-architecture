@@ -1,0 +1,109 @@
+---
+description: Estrutura arquitetural, padrões hexagonal/Modulith e convenções de código do backend
+alwaysApply: true
+---
+
+# Backend — Architecture
+
+- Trabalhe neste backend como base reutilizável para APIs de painéis administrativos SaaS multi-usuário.
+- Stack obrigatória: **Java 25**, **Spring Boot 4.0.x**, **Spring Modulith 2.0.x**, MapStruct, Lombok, JPA, Liquibase, OAuth2 Resource Server (Keycloak JWT).
+- **Virtual threads** habilitadas globalmente (`spring.threads.virtual.enabled: true`): Tomcat, `@Async`, `@Scheduled` e `applicationTaskExecutor` usam virtual threads. Paralelismo ad hoc deve delegar a esse executor, não criar pools manuais.
+- Deployável único: **`api-cadastros`** (`context-path` `/api/v1`, porta 8080). OpenAPI: `/openapi/swagger-ui`.
+- Domínios e regras de negócio: [`backend-domains.mdc`](backend/.cursor/rules/backend-domains.mdc) e [`docs/domains/`](../../../../docs/domains/README.md).
+- Testes: [`backend-testing.mdc`](backend/.cursor/rules/backend-testing.mdc).
+
+## Estrutura Maven
+
+```
+backend/
+  shared-kernel/          # Cross-cutting (enums, exceções, eventos)
+  domain-{context}/       # Bounded contexts (identity, plataformadmin, authorize, …)
+  api-cadastros/          # Composition root, Liquibase, security, Application.java
+```
+
+Novos bounded contexts: módulo `domain-{nome}` + dependência em `api-cadastros/pom.xml`.
+
+**Observação — build:** comandos Maven (`compile`, `test`, `package`, …) só funcionam de forma confiável no **módulo pai** (`cd backend && mvn …`). Rodar Maven **dentro** de um submódulo falha porque os outros artefatos `com.lodh8.starter:*` não estão instalados/resolvíveis isoladamente. Para mirar um módulo: `mvn -pl <módulo> -am …` a partir de `backend/`.
+
+## Hexagonal por subdomínio
+
+```
+{modulo}/{subdominio}/
+  api/controller/       # REST — adaptador primário
+  api/dtos/             # Request/Response DTOs
+  app/                  # Interfaces de service
+  app/impl/             # Implementação
+  app/port/             # Ports (repository, providers)
+  domain/               # Records, eventos de domínio
+  infra/                # JPA entities, MapStruct mappers, adapters externos
+```
+
+- Controllers finos: delegam ao service, mapeiam DTO ↔ domain.
+- Lógica de negócio em `app/impl/`, não em controllers nem entities JPA.
+- Domain models preferencialmente **records** imutáveis em `domain/`.
+- Mappers: **MapStruct** em `infra/` (`*Mapper`, `*MapperAdapter`).
+
+## Spring Modulith
+
+- Cada módulo `domain-*` declara `@ApplicationModule` em `package-info.java` com `allowedDependencies`.
+- Pacotes públicos expostos via `@NamedInterface("nome")` em `package-info.java` filhos.
+- **Proibido** importar `infra/` de outro módulo. Use apenas named interfaces ou eventos.
+- Comunicação fraca entre módulos: `@ApplicationModuleListener` + `EventPublisherPort` (`shared-kernel`).
+- Verificação estrutural: `ApplicationTest` com `ApplicationModules.of(Application.class)`.
+- Event publication transacional: tabela `public.event_publication` (infra Spring Modulith, Liquibase em `api-cadastros/.../modulith/`) + `spring-modulith-starter-jpa`.
+
+## Enums — spring-mapper-enum v2
+
+Biblioteca interna: **spring-mapper-enum 2.0.0** ([v2.x.x](https://github.com/HerculanoLeo/spring-mapper-enum/tree/v2.x.x), Boot 4, Jackson 3; artifact no GitHub Packages).
+
+- Enums com valor string customizado implementam `MapperEnum` em `shared-kernel/.../enums/`.
+- Anotar cada enum com **`@MapperEnumType`** e **`@MapperEnumDBConverter`** (quando persistido via JPA).
+- Habilitar em `Application.java`: `@EnableMapperEnum` e `@EnableFeignMapperEnum`.
+- **Build:** incluir `spring-mapper-enum` em `annotationProcessorPaths` do `maven-compiler-plugin` (gera converters JPA, serializers Jackson 3 e `MapperEnumTypeContributor` em compile-time — sem classpath scanning em runtime).
+- Cobertura automática: Spring MVC (query/path params), JSON REST, Feign (`@SpringQueryMap`), JPA `AttributeConverter`.
+- Uso manual permitido: `MapperEnum.fromValue(value, EnumClass.class)` em mappers Keycloak.
+
+## REST e validação
+
+- Prefixos: `/sistema/*` (backoffice), `/auth/*` (self-service), `/localizacao/*`, `/notificacao`.
+- Nomenclatura PT alinhada ao frontend: `UsuarioSistema`, `GrupoSistema`, `RoleSistema`.
+
+**Duas camadas complementares:**
+
+| Camada | Ferramenta | Onde |
+|--------|------------|------|
+| Contrato HTTP | Bean Validation (`@NotNull`, `@Email`, …) | `api/dtos/` |
+| Regras de negócio | [SentinelFlow](https://github.com/HerculanoLeo/sentinel-flow) (fluent, desacoplado dos DTOs) | `app/*Validator.java` + chamada no início de `app/impl/*ServiceImpl` |
+
+- SentinelFlow: beans `ValidatorFactory` / `ValidationFactory` em `ValidationConfig` (`api-cadastros`).
+- Falhas de validação: `ValidatorException` → `CommonExceptionHandler` → 400 + `ServerFieldErrorsExceptionResponse`.
+- Preferir SentinelFlow para regras condicionais, multi-campo e formatos BR (CPF, CNPJ, CEP, telefone).
+
+## Persistência
+
+- JPA entities em `{subdominio}/infra/persistence/*Entity.java` com `@Table(schema = "...")` por bounded context.
+- **PostgreSQL 18+** obrigatório. PKs UUID de domínio: `DEFAULT uuidv7()` no banco; entity com `@Generated(event = EventType.INSERT)` + `insertable = false` (sem geração no cliente).
+- **Liquibase por módulo:** changelogs em `domain-*/src/main/resources/db/changelog/{domain}/` (convenção `YYYYMMDD-autor.yaml` + `YYYYMMDDHHMM-*.sql`). Master + `platform/` + `modulith/` (`event_publication` em `public`) em `api-cadastros`. Schemas de domínio: `plataformadmin`, `notification`, `location`, `security`.
+- Grants: role MG (`CADASTROS_DB_MG_USERNAME`) owner; role app (`CADASTROS_DB_USERNAME`) via `${app_role}` (USAGE + DML + sequences). Squash de baseline exige reset do banco.
+- Specifications para buscas dinâmicas: `*EntitySpecification`.
+- Hibernate 7 + `hibernate-processor` (metamodel generation no annotation processor path).
+
+## Integrações externas
+
+- **Keycloak** (Admin Client, OAuth): confinado a `domain-identity/infra`.
+- **APIs CEP BR** (Feign): `domain-location/cep/infra`.
+- **E-mail** (Freemarker + SMTP): `domain-notification/infra`.
+- OpenFeign habilitado em `Application.java` (`@EnableFeignClients`).
+
+## Fronteira BFF
+
+O frontend (TanStack Start / BFF) não está neste repositório público; specs em `docs/domains/bff/`. Detalhes em [`backend-domains.mdc`](backend-domains.mdc).
+
+## Decisões arquiteturais
+
+1. **Modular Monolith primeiro** — extrair microserviço só quando fronteira Modulith exigir.
+2. **Identity vs Backoffice** — Keycloak em `domain-identity`; orquestração e persistência local em `domain-backoffice`.
+3. **Eventos** preferidos a acoplamento direto entre módulos supporting (ex.: notificação).
+4. **Sem regra de negócio** em `api-cadastros` além de configuração e bootstrap.
+5. **spring-mapper-enum v2** — única linha suportada em Boot 4; enums registrados em compile-time via `@MapperEnumType`.
+6. **SentinelFlow** — validação de negócio nos services; Bean Validation permanece nos DTOs REST.

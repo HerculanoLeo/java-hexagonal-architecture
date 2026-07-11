@@ -1,0 +1,101 @@
+---
+description: Regras de negócio, bounded contexts, DDD e catálogo de domínios do backend
+globs: backend/**/*.java
+alwaysApply: false
+---
+
+# Backend — Domains
+
+Referência detalhada por subdomínio: [`docs/domains/`](../../../../docs/domains/README.md).
+
+## Classificação DDD
+
+| Categoria | Módulos | Papel |
+|-----------|---------|-------|
+| **Core** | `domain-identity`, `domain-backoffice`, `domain-authorize` | IAM — diferencial do starter |
+| **Supporting** | `domain-notification`, `domain-location`, `domain-security` | Notificação, referência geográfica, auditoria de login |
+| **Generic** | `shared-kernel`, `api-cadastros` | Infra transversal e composition root |
+
+## Core — IAM
+
+| Subdomínio | Módulo | API REST | Notas |
+|------------|--------|----------|-------|
+| Identity (Keycloak) | `domain-identity` | (interno) | Anti-corrupção Keycloak — usuarios, grupos, roles, clientapi |
+| Usuario Sistema | `domain-backoffice` | `/sistema/usuario` | **Backoffice** — CRUD operadores da plataforma |
+| Grupo Sistema | `domain-backoffice` | `/sistema/grupo` | Grupos de permissão |
+| Role Sistema | `domain-backoffice` | `/sistema/roles` | Catálogo read-only |
+| Usuario Autenticado | `domain-authorize` | `/auth/me`, `/auth/grupo`, `/auth/me/senha` | Self-service |
+
+**Identity vs Backoffice:** `domain-identity` executa operações no Keycloak; `domain-backoffice` (**backoffice**) valida regras, persiste metadados locais e publica eventos.
+
+## Supporting
+
+| Subdomínio | Módulo | API REST |
+|------------|--------|----------|
+| Notificação | `domain-notification` | `/notificacao` |
+| CEP | `domain-location` | `/localizacao/cep` |
+| Estado | `domain-location` | `/localizacao/estado` |
+| Município | `domain-location` | `/localizacao/municipio` |
+| Histórico de logins | `domain-security` | `/seguranca/historico-logins` |
+| Sessão (Keycloak) | `domain-security` | `/seguranca/sessoes` |
+
+## Matriz Modulith (`allowedDependencies`)
+
+| Módulo | Depende de |
+|--------|------------|
+| `shared-kernel` | — |
+| `domain-identity` | `shared::*` |
+| `domain-authorize` | `shared::*`, `identity::usuarios`, `identity::grupos`, `identity::infra-attributes` |
+| `domain-backoffice` | `shared::*`, `identity::*` (usuarios, grupos, roles), `authorize::*`, `notification::events` |
+| `domain-notification` | `shared::*` |
+| `domain-location` | `shared::*` |
+| `domain-security` | `shared::*`, `authorize::authorize-ports`, `authorize::domain`, `plataformadmin::usuarios`, `plataformadmin::usuarios-domain`, `identity::usuarios` |
+
+Admin consome eventos de notification apenas via pacote `notification::events`.
+
+## Eventos entre módulos
+
+```
+UsuarioSistemaCriadoEvent (plataformadmin)
+  → UsuarioSistemaListeners (plataformadmin)
+  → NotificacaoBoasVindasEvent (notification::events)
+  → NotificacaoEventListeners (notification)
+```
+
+Troca de senha (`authorize`) publica `NotificacaoTrocaSenhaEvent`. Preferir listeners a chamadas diretas service-to-service para supporting domains.
+
+## Orquestração cross-domain
+
+Referência: [`docs/domains/orchestration/`](../../../../docs/domains/orchestration/README.md)
+
+| Cenário | Status |
+|---------|--------|
+| [Cadastro usuário backoffice](../../../../docs/domains/orchestration/cadastro-usuario-sistema.md) | Implementado |
+
+## Fronteira BFF vs backend
+
+| Responsabilidade | Camada |
+|------------------|--------|
+| CRUD usuario/grupo/role, perfil, senha | Backend Java |
+| Menu, branding, platform-settings | BFF + Prisma |
+| Sessões OAuth / usuarios online | BFF + Prisma (better-auth); revogação sincroniza Keycloak via `DELETE /seguranca/sessoes/{identityId}` |
+| Histórico de logins | BFF detecta sessão; backend `domain-security` persiste |
+| Login OAuth | Keycloak + better-auth no BFF |
+
+## Novo domínio backend
+
+1. Criar módulo Maven `domain-{context}` com estrutura hexagonal.
+2. `@ApplicationModule` + `@NamedInterface` nos pacotes públicos.
+3. Registrar em `backend/pom.xml` (modules + dependencyManagement) e `api-cadastros/pom.xml`.
+4. Liquibase em `api-cadastros` se persistir dados.
+5. Controller REST se expor API pública.
+6. Documentar em [`docs/domains/`](../../../../docs/domains/README.md).
+7. Espelhar entity slice no frontend se houver UI.
+
+## Roadmap
+
+| Domínio | Categoria | Doc |
+|---------|-----------|-----|
+| Multi-tenant / Organização | Core (extensão) | `docs/domains/roadmap/multi-tenant.md` |
+| Observabilidade admin | Generic | `docs/domains/roadmap/observabilidade.md` |
+| Notificação admin UI | Supporting | `docs/domains/roadmap/notificacao-admin-ui.md` |

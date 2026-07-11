@@ -1,0 +1,68 @@
+---
+description: Escopo, JaCoCo e padrões de testes do backend (JUnit 5, Mockito)
+globs: backend/**/test/**/*.java
+alwaysApply: false
+---
+
+# Backend — Testing
+
+Arquitetura: [`backend-architecture.mdc`](backend/.cursor/rules/backend-architecture.mdc). Domínios: [`backend-domains.mdc`](backend/.cursor/rules/backend-domains.mdc).
+
+## Escopo
+
+| Tipo | Padrão de arquivo | O quê |
+|------|-------------------|-------|
+| Service | `*ServiceImplTest` | Regras de negócio, mocks de ports |
+| Controller | `*ControllerTest` | `@WebMvcTest`, contratos HTTP |
+| Repository | `*RepositoryAdapterTest` | Adaptadores JPA |
+| Modulith | `ApplicationTest` | Verificação de fronteiras de módulos |
+
+## O que NÃO testar nesta fase
+
+- Integração E2E com Keycloak/PostgreSQL real
+- Testes de contrato OpenAPI automatizados
+- Carga/performance
+
+## Padrões
+
+- **JUnit 5** + **Mockito** (`@ExtendWith(MockitoExtension.class)`).
+- **Starters de teste modulares (Boot 4):** `spring-boot-starter-webmvc-test`, `-data-jpa-test`, `-security-test` conforme tecnologias do módulo — **não** usar `spring-boot-starter-test` agregador.
+- Controllers: `@WebMvcTest(Controller.class)` + `@Import` de security/config mínima quando necessário.
+- Services: mockar `*Port` interfaces e `*Validator` ao testar `*ServiceImpl`.
+- Validators SentinelFlow: testar com `ValidatorFactoryImpl` + `ValidationFactoryImpl` diretamente.
+- Fixtures locais no arquivo de teste.
+
+## JaCoCo
+
+Exclusões configuradas em [`backend/pom.xml`](backend/pom.xml):
+
+- `Application.class`, domain records, mappers MapStruct, JPA entities, configurations, enums
+
+Não buscar cobertura alta em classes excluídas; focar `app/impl/` e controllers.
+
+## Comandos
+
+> **Observação — Maven multi-módulo:** rode **sempre** a partir do POM pai (`backend/`).  
+> Executar `mvn compile` / `mvn test` **dentro** de um submódulo (`domain-*`, `api-cadastros`, etc.) **falha** — os artefatos internos dos outros módulos não são encontrados no repositório local.  
+> Módulo isolado: `mvn -pl <módulo> -am …` a partir de `backend/`.
+
+```bash
+cd backend && mvn test                              # suíte completa (reator)
+cd backend && mvn test -pl domain-backoffice -am    # módulo + dependências
+cd backend && mvn test -Dtest=ApplicationTest -Dsurefire.failIfNoSpecifiedTests=false  # Modulith
+```
+
+## Ao alterar código
+
+1. Novo método em `*ServiceImpl` → teste em `*ServiceImplTest` cobrindo happy path e exceções de negócio.
+2. Novo endpoint → `*ControllerTest` com status e payload esperados.
+3. Novo módulo Modulith → garantir que `ApplicationTest` passa (sem dependências circulares).
+4. Novo listener de evento → testar handler isolado com evento de domínio mockado.
+
+## Pendências (não implementar sem pedido)
+
+| Tipo | Status |
+|------|--------|
+| Testcontainers (PostgreSQL + Keycloak) | Pendente |
+| Testes de integração Modulith events | Pendente |
+| Contract tests com frontend/BFF | Pendente |

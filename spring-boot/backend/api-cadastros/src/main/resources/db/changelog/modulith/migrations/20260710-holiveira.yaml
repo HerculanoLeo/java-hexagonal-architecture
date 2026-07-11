@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202607101210-create-event-publication
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607101210-create-event-publication.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101210-create-event-publication-rollback.sql
+            relativeToChangelogFile: true

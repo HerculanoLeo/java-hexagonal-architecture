@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202607101230-create-notificacao
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607101230-create-notificacao.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101230-create-notificacao-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101235-insert-notificacao-config-dev
+      author: holiveira
+      contextFilter: dev
+      changes:
+        - sqlFile:
+            path: ../sql/202607101235-insert-notificacao-config-dev.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101235-insert-notificacao-config-dev-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101235-insert-notificacao-config-hml
+      author: holiveira
+      contextFilter: hml
+      changes:
+        - sqlFile:
+            path: ../sql/202607101235-insert-notificacao-config-hml.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101235-insert-notificacao-config-hml-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101235-insert-notificacao-config-prd
+      author: holiveira
+      contextFilter: prd
+      changes:
+        - sqlFile:
+            path: ../sql/202607101235-insert-notificacao-config-prd.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101235-insert-notificacao-config-prd-rollback.sql
+            relativeToChangelogFile: true

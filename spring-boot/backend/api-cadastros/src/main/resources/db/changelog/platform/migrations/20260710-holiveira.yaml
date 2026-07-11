@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202607101200-create-extensions-and-schemas
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607101200-create-extensions-and-schemas.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101200-create-extensions-and-schemas-rollback.sql
+            relativeToChangelogFile: true

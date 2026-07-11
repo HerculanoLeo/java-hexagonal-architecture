@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202607102015-create-historico-login
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607102015-create-historico-login.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607102015-create-historico-login-rollback.sql
+            relativeToChangelogFile: true

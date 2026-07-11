@@ -41,36 +41,4 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-yarn.lock
-packege-lock.json
 .env
-/logs
-/**/target/
-application-mail_*.yml
-application-hml.yml
-application-prd.yml
-pnpm-lock.yaml

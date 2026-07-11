@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.herculanoleo.starter</groupId>
+        <groupId>com.lodh8.starter</groupId>
         <artifactId>backend</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -14,6 +14,16 @@
     <name>shared-kernel</name>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jackson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.herculanoleo</groupId>
             <artifactId>spring-mapper-enum</artifactId>

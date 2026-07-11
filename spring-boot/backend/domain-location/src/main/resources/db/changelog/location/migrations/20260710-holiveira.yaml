@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202607101240-create-localizacao
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607101240-create-localizacao.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101240-create-localizacao-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101245-insert-estados
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607101245-insert-estados.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101245-insert-estados-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101250-insert-municipios
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607101250-insert-municipios.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101250-insert-municipios-rollback.sql
+            relativeToChangelogFile: true

@@ -1,11 +1,16 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
 
 spring:
   application:
     name: starter-api-cadastros
   profiles:
     active: ${ENVIRONMENT:local}
+  threads:
+    virtual:
+      enabled: true
   jpa:
     open-in-view: true
     properties:
@@ -19,6 +24,8 @@ spring:
     contexts: ${ENVIRONMENT}
     user: ${CADASTROS_DB_MG_USERNAME}
     password: ${CADASTROS_DB_MG_PASSWORD}
+    parameters:
+      app_role: ${CADASTROS_DB_USERNAME:develop}
   security:
     oauth2:
       resource-server:
@@ -29,7 +36,7 @@ spring:
     openfeign:
       lazy-attributes-resolution: true
   freemarker:
-    template-loader-path: classpath:/freemarker-templates/, classpath:/notification-templates/
+    template-loader-path: classpath:/freemarker-templates/
 
 logging:
   file:
@@ -41,7 +48,10 @@ logging:
     sql: DEBUG
     web: INFO
     org.springframework.modulith: DEBUG
-    com.herculanoleo.starter: DEBUG
+
+otlp:
+  exporter:
+    endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://otel:4318}
 
 management:
   endpoints:
@@ -50,18 +60,50 @@ management:
         include: '*'
     web:
       exposure:
-        include: 'health,info,refresh,prometheus'
+        include: 'health,info,refresh'
+  otlp:
+    metrics:
+      export:
+        enabled: true
+        url: ${otlp.exporter.endpoint}/v1/metrics
+        step: 1m
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${otlp.exporter.endpoint}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: ${otlp.exporter.endpoint}/v1/logs
+    resource-attributes:
+      application: ${spring.application.name}
+      environment: ${ENVIRONMENT}
+      namespace: ${NAMESPACE:starter}
+  logging:
+    export:
+      enabled: true
+  tracing:
+    export:
+      enabled: true
+    sampling:
+      probability: ${OTEL_TRACES_SAMPLER_ARG:0.2}
   metrics:
     tags:
       application: ${spring.application.name}
+      environment: ${ENVIRONMENT}
+      namespace: ${NAMESPACE:starter}
+  observations:
+    key-values:
+      application: ${spring.application.name}
+      environment: ${ENVIRONMENT}
+      namespace: ${NAMESPACE:starter}
 
 springdoc:
   swagger-ui:
     path: /openapi/swagger-ui
 
 api:
-  sistema:
-    redirect-uri: ${GESTAO_WEBAPP_URL}
   web:
     cors:
       allowed-origins: ${CADASTROS_CORS_ALLOWED_ORIGINS}

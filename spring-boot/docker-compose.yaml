@@ -5,16 +5,18 @@ networks:
 
 services:
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.150.1
     container_name: starter-otel-collector
     restart: unless-stopped
     env_file:
       - .env
     hostname: otel
     networks:
-      - starter-network
+      starter-network:
+        aliases:
+          - otel
     volumes:
-      - ./otel/config/config.yaml:/etc/otelcol-contrib/config.yaml
+      - ./dependencias/opentelemetry/config-cloud.yaml:/etc/otelcol-contrib/config.yaml
 
   cadastros:
     image: starter-api-cadastros:${VERSION}

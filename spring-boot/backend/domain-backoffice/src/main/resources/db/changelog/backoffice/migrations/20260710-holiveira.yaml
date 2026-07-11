@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202607101220-create-sistema-usuario
+      author: holiveira
+      changes:
+        - sqlFile:
+            path: ../sql/202607101220-create-sistema-usuario.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101220-create-sistema-usuario-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101225-insert-usuario-sistema-dev
+      author: holiveira
+      contextFilter: dev
+      changes:
+        - sqlFile:
+            path: ../sql/202607101225-insert-usuario-sistema-dev.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101225-insert-usuario-sistema-dev-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101225-insert-usuario-sistema-hml
+      author: holiveira
+      contextFilter: hml
+      changes:
+        - sqlFile:
+            path: ../sql/202607101225-insert-usuario-sistema-hml.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101225-insert-usuario-sistema-hml-rollback.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 202607101225-insert-usuario-sistema-prd
+      author: holiveira
+      contextFilter: prd
+      changes:
+        - sqlFile:
+            path: ../sql/202607101225-insert-usuario-sistema-prd.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: ../sql/202607101225-insert-usuario-sistema-prd-rollback.sql
+            relativeToChangelogFile: true

@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS event_publication_by_listener_id_and_serialized_event_idx;
+DROP INDEX IF EXISTS event_publication_by_completion_date_idx;
+DROP TABLE IF EXISTS event_publication;

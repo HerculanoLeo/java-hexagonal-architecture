@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.herculanoleo.starter</groupId>
+        <groupId>com.lodh8.starter</groupId>
         <artifactId>backend</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -26,39 +26,53 @@
         </dependency>
 
         <dependency>
-            <groupId>com.herculanoleo.starter</groupId>
+            <groupId>com.lodh8.starter</groupId>
             <artifactId>shared-kernel</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.herculanoleo.starter</groupId>
+            <groupId>com.lodh8.starter</groupId>
             <artifactId>domain-identity</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.herculanoleo.starter</groupId>
+            <groupId>com.lodh8.starter</groupId>
             <artifactId>domain-authorize</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.herculanoleo.starter</groupId>
-            <artifactId>domain-plataformadmin</artifactId>
+            <groupId>com.lodh8.starter</groupId>
+            <artifactId>domain-backoffice</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.herculanoleo.starter</groupId>
+            <groupId>com.lodh8.starter</groupId>
             <artifactId>domain-location</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.herculanoleo.starter</groupId>
+            <groupId>com.lodh8.starter</groupId>
             <artifactId>domain-notification</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lodh8.starter</groupId>
+            <artifactId>domain-security</artifactId>
         </dependency>
 
         <!-- DEPENDENCIAS -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-logback-appender-1.0</artifactId>
+            <version>2.21.0-alpha</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -82,11 +96,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-liquibase</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -111,7 +125,7 @@
 
         <dependency>
             <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-jpamodelgen</artifactId>
+            <artifactId>hibernate-processor</artifactId>
         </dependency>
 
         <dependency>
@@ -162,12 +176,17 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -205,7 +224,7 @@
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.hibernate.orm</groupId>
-                            <artifactId>hibernate-jpamodelgen</artifactId>
+                            <artifactId>hibernate-processor</artifactId>
                         </path>
                         <path>
                             <groupId>org.springframework.boot</groupId>
@@ -257,21 +276,38 @@
         <profile>
             <id>production</id>
             <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                        <filtering>true</filtering>
-                        <excludes>
-                            <!--
-                              Exclui arquivos de configuração específicos de ambientes
-                              que não são de produção. Adicione outros padrões se necessário.
-                            -->
-                            <exclude>application-local.yaml</exclude>
-                            <exclude>application-dev.yaml</exclude>
-                            <exclude>application-test.yaml</exclude>
-                        </excludes>
-                    </resource>
-                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-resources</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>resources</goal>
+                                </goals>
+                                <configuration>
+                                    <resources>
+                                        <resource>
+                                            <!--
+                                            adicione todos os arquivos da pasta resources que devem estar dentros do jar
+                                            -->
+                                            <directory>src/main/resources</directory>
+                                            <includes>
+                                                <include>application.yaml</include>
+                                                <include>db/changelog/**/*.yaml</include>
+                                                <include>db/changelog/**/*.sql</include>
+                                                <include>db/changelog/**/*.xml</include>
+                                            </includes>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
     </profiles>

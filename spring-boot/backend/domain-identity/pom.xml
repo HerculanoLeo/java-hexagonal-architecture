@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.herculanoleo.starter</groupId>
+        <groupId>com.lodh8.starter</groupId>
         <artifactId>backend</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -26,14 +26,19 @@
         </dependency>
 
         <dependency>
-            <groupId>com.herculanoleo.starter</groupId>
+            <groupId>com.lodh8.starter</groupId>
             <artifactId>shared-kernel</artifactId>
         </dependency>
 
         <!-- DEPENDENCIAS -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-jackson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -79,7 +84,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

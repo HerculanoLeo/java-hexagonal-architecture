@@ -10,17 +10,42 @@ spring:
     contexts: dev
     user: liquibase
     password: 123
+    parameters:
+      app_role: develop
   devtools:
     livereload:
       port: 40002
+  mail:
+    host: smtp.dummy.com
+    username: administrador@dummy.comx
+    password: dummy-password
+    port: 587
+    properties:
+      mail:
+        debug: false
+        smtp:
+          auth: true
+          from: administrador@dummy.comx
+          ssl:
+            trust: true
 
 logging:
   file:
     name: ./logs/${spring.application.name}.log
 
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  logging:
+    export:
+      enabled: false
+  tracing:
+    export:
+      enabled: false
+
 api:
-  sistema:
-    redirect-uri: http://localhost:5137
   notificacao:
     cron-reenvio: 0 */15 * * * *
     email:
@@ -34,7 +59,7 @@ api:
     keycloak:
       url: https://keycloak.dummy.com
       realm: starter
-      client-id: starter-cadastros
+      client-id: starter-api-cadastros
       client-secret: dummy-secret
       gran-type: client_credentials
       client-id-users: webapp
