@@ -1,12 +1,15 @@
-node_modules
-.env
-.env.*
-.git
-.gitignore
-README.md
-*.log
-coverage
-.vinxi
-.output
-.nitro
-.tanstack
+# Contexto: frontend/gestao/
+# Runtime-only — pnpm build / prisma generate na pipeline antes do docker build.
+*
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!prisma.config.ts
+!dist/
+!dist/**
+!prisma/
+!prisma/**
+!src/
+src/**
+!src/generated/
+!src/generated/**

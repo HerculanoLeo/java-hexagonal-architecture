@@ -1,6 +1,6 @@
 # java-hexagonal-architecture — Guia para Agentes
 
-Starter público de **painel administrativo SaaS** multi-usuário: backend Java (**Spring Boot 4.0.7** + Modulith 2.0) + frontend TanStack Start (BFF) + Keycloak.
+Starter público de **painel administrativo SaaS** multi-usuário: backend Java (**Spring Boot 4.2** + Modulith 2.2) + frontend TanStack Start (BFF) + Keycloak.
 
 > Repositório **anonimizado** (sem credenciais reais).
 
@@ -17,7 +17,7 @@ Starter público de **painel administrativo SaaS** multi-usuário: backend Java 
 ```
 spring-boot/
   backend/           # Maven multi-module (Spring Boot + Modulith)
-  dependencias/      # Keycloak realm + OpenTelemetry
+  dependencias/      # Keycloak realm + OpenTelemetry + Grafana dashboards
   docker-compose.yaml
 frontend/gestao/     # TanStack Start + Prisma (BFF)
 docs/domains/        # Documentação / specs por domínio

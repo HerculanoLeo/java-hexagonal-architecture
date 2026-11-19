@@ -1,12 +1,12 @@
 package com.lodh8.starter.cadastros.infra.authorize;
 
-import com.lodh8.starter.authorize.app.port.UsuarioAutenticadoProviderPort;
+import com.lodh8.starter.authorize.app.UsuarioAutenticadoProviderService;
 import com.lodh8.starter.authorize.domain.GrupoAutenticado;
 import com.lodh8.starter.authorize.domain.OAuthUser;
 import com.lodh8.starter.authorize.domain.UsuarioAutenticado;
-import com.lodh8.starter.backoffice.usuarios.app.port.UsuarioSistemaRepositoryPort;
-import com.lodh8.starter.backoffice.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.identity.grupos.app.GrupoService;
+import com.lodh8.starter.plataforma.usuarios.app.UsuarioSistemaService;
+import com.lodh8.starter.plataforma.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.shared.models.enums.Status;
 import com.lodh8.starter.shared.models.enums.TipoAcesso;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +19,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProviderPort {
+public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProviderService {
 
     protected static final String USER_CACHE_KEY = "authenticated-user-cache";
 
-    private final UsuarioSistemaRepositoryPort usuarioSistemaRepository;
+    private final UsuarioSistemaService usuarioSistemaService;
 
     private final GrupoService grupoService;
 
@@ -59,7 +59,7 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
                     .map(grupo -> new GrupoAutenticado(grupo.id(), grupo.nome(), grupo.roles()))
                     .orElseGet(() -> {
                         // Usuário principal sem grupo: flag main no banco local.
-                        var isMain = this.usuarioSistemaRepository.findByIdentityId(user.userId())
+                        var isMain = this.usuarioSistemaService.findByIdentityId(user.userId())
                                 .map(UsuarioSistema::main)
                                 .orElse(false);
                         if (isMain) {
@@ -77,7 +77,7 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
 
     protected UsuarioAutenticado getUsuarioAutenticado(OAuthUser user) {
         return switch (user.type()) {
-            case USUARIO_SISTEMA -> usuarioSistemaRepository.findByIdentityId(user.userId())
+            case USUARIO_SISTEMA -> usuarioSistemaService.findByIdentityId(user.userId())
                     .map(usuario -> new UsuarioAutenticado(
                             usuario.id(),
                             usuario.identityId(),
@@ -104,7 +104,7 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
 
     @Override
     public void atualizarNome(UUID usuarioId, String nome, OAuthUser oauthUser) {
-        usuarioSistemaRepository.updateNome(usuarioId, nome);
+        usuarioSistemaService.updateNome(usuarioId, nome);
 
         var cache = cacheManager.getCache(USER_CACHE_KEY);
         var cacheKey = getCacheKey(oauthUser);

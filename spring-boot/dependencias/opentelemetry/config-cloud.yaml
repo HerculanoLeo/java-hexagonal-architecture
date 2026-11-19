@@ -17,9 +17,10 @@ receivers:
     endpoint: unix:///var/run/docker.sock
     collection_interval: 1m
     container_labels_to_metric_labels:
-      namespace: "${NAMESPACE}"
-      environment: "${ENVIRONMENT}"
-      version: "${VERSION}"
+      com.docker.compose.project: compose.project
+    metrics:
+      container.uptime:
+        enabled: true
 
 processors:
   batch:
@@ -27,6 +28,9 @@ processors:
   resource/common:
     attributes:
       - key: namespace
+        value: "${env:NAMESPACE}"
+        action: upsert
+      - key: service.namespace
         value: "${env:NAMESPACE}"
         action: upsert
       - key: environment
@@ -43,74 +47,72 @@ processors:
     trace_statements:
       - context: resource
         statements:
-          - delete_key(resource.attributes, "k8s.pod.start_time")
-          - delete_key(resource.attributes, "os.description")
-          - delete_key(resource.attributes, "os.type")
-          - delete_key(resource.attributes, "process.command_args")
-          - delete_key(resource.attributes, "process.executable.path")
-          - delete_key(resource.attributes, "process.pid")
-          - delete_key(resource.attributes, "process.runtime.description")
-          - delete_key(resource.attributes, "process.runtime.name")
-          - delete_key(resource.attributes, "process.runtime.version")
+          - delete_key(attributes, "k8s.pod.start_time")
+          - delete_key(attributes, "os.description")
+          - delete_key(attributes, "os.type")
+          - delete_key(attributes, "process.command_args")
+          - delete_key(attributes, "process.executable.path")
+          - delete_key(attributes, "process.pid")
+          - delete_key(attributes, "process.runtime.description")
+          - delete_key(attributes, "process.runtime.name")
+          - delete_key(attributes, "process.runtime.version")
     metric_statements:
       - context: resource
         statements:
-          - delete_key(resource.attributes, "k8s.pod.start_time")
-          - delete_key(resource.attributes, "os.description")
-          - delete_key(resource.attributes, "os.type")
-          - delete_key(resource.attributes, "process.command_args")
-          - delete_key(resource.attributes, "process.executable.path")
-          - delete_key(resource.attributes, "process.pid")
-          - delete_key(resource.attributes, "process.runtime.description")
-          - delete_key(resource.attributes, "process.runtime.name")
-          - delete_key(resource.attributes, "process.runtime.version")
+          - delete_key(attributes, "k8s.pod.start_time")
+          - delete_key(attributes, "os.description")
+          - delete_key(attributes, "os.type")
+          - delete_key(attributes, "process.command_args")
+          - delete_key(attributes, "process.executable.path")
+          - delete_key(attributes, "process.pid")
+          - delete_key(attributes, "process.runtime.description")
+          - delete_key(attributes, "process.runtime.name")
+          - delete_key(attributes, "process.runtime.version")
     log_statements:
       - context: resource
         statements:
-          - delete_key(resource.attributes, "k8s.pod.start_time")
-          - delete_key(resource.attributes, "os.description")
-          - delete_key(resource.attributes, "os.type")
-          - delete_key(resource.attributes, "process.command_args")
-          - delete_key(resource.attributes, "process.executable.path")
-          - delete_key(resource.attributes, "process.pid")
-          - delete_key(resource.attributes, "process.runtime.description")
-          - delete_key(resource.attributes, "process.runtime.name")
-          - delete_key(resource.attributes, "process.runtime.version")
+          - delete_key(attributes, "k8s.pod.start_time")
+          - delete_key(attributes, "os.description")
+          - delete_key(attributes, "os.type")
+          - delete_key(attributes, "process.command_args")
+          - delete_key(attributes, "process.executable.path")
+          - delete_key(attributes, "process.pid")
+          - delete_key(attributes, "process.runtime.description")
+          - delete_key(attributes, "process.runtime.name")
+          - delete_key(attributes, "process.runtime.version")
   transform/add_resource_attributes_as_metric_attributes:
     # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
     error_mode: ignore
     metric_statements:
       - context: datapoint
         statements:
-          - set(datapoint.attributes["deployment.environment"], resource.attributes["deployment.environment"])
-          - set(datapoint.attributes["environment"], resource.attributes["environment"])
-          - set(datapoint.attributes["namespace"], resource.attributes["namespace"])
-          - set(datapoint.attributes["application"], resource.attributes["application"])
-          - set(datapoint.attributes["container.name"], resource.attributes["container.name"])
-          - set(datapoint.attributes["container.image"], resource.attributes["container.image"])
+          - set(attributes["deployment.environment"], resource.attributes["deployment.environment"])
+          - set(attributes["service.version"], resource.attributes["service.version"])
+          - set(attributes["environment"], resource.attributes["environment"])
+          - set(attributes["namespace"], resource.attributes["namespace"])
+          - set(attributes["application"], resource.attributes["application"])
+          - set(attributes["application"], resource.attributes["service.name"]) where attributes["application"] == nil
+          - set(attributes["container.name"], resource.attributes["container.name"])
+          - set(attributes["container.image"], resource.attributes["container.image"])
   filter/drop_actuator:
-    metrics:
-      datapoint:
-        - attributes["uri"] == "/actuator/prometheus"
-        - attributes["uri"] == "/actuator/health"
-        - attributes["uri"] == "/api/v1/actuator/health"
-        - attributes["uri"] == "/health"
     traces:
       span:
         - attributes["http.route"] == "/actuator/prometheus"
         - attributes["http.route"] == "/actuator/health"
-        - attributes["http.route"] == "/api/v1/actuator/health"
-        - attributes["http.route"] == "/health"
-
+  filter/docker_compose_project:
+    error_mode: ignore
+    metrics:
+      resource:
+        - 'attributes["compose.project"] == nil or attributes["compose.project"] != "${env:COMPOSE_PROJECT_NAME}"'
   filter/keep_used_metrics:
     metrics:
       include:
         match_type: regexp
         metric_names:
-          - "^(http_server_requests|http\\.server\\.requests|jvm|jvm_info|jvm\\.info|jvm_memory_used|jvm\\.memory\\.used|jvm_gc_pause|jvm\\.gc\\.pause|jvm_threads|jvm\\.threads|jvm_classes_loaded|jvm\\.classes\\.loaded|jvm_buffer_memory_used|jvm\\.buffer\\.memory\\.used|process_uptime|process\\.uptime|process_cpu_usage|process\\.cpu\\.usage|system_cpu_usage|system\\.cpu\\.usage|hikaricp_connections|hikaricp\\.connections|logback_events|logback\\.events|process_files|process\\.files|container_cpu|container\\.cpu|container_memory|container\\.memory|container_blockio|container\\.blockio|container_network|container\\.network).*"
+          - "^(target_info|http_server_request|http_server_requests|http\\.server|http\\.server\\.requests|http\\.server\\.request|jvm|jvm_info|jvm\\.info|jvm_memory_used|jvm\\.memory\\.used|jvm_gc_pause|jvm\\.gc\\.pause|jvm_threads|jvm\\.threads|jvm_classes_loaded|jvm\\.classes\\.loaded|jvm_buffer_memory_used|jvm\\.buffer\\.memory\\.used|process_uptime|process\\.uptime|process_start_time|process\\.start\\.time|process_cpu_usage|process\\.cpu\\.usage|system_cpu_usage|system\\.cpu\\.usage|hikaricp_connections|hikaricp\\.connections|logback_events|logback\\.events|process_files|process\\.files|container_cpu|container\\.cpu|container_memory|container\\.memory|container_blockio|container\\.blockio|container_network|container\\.network|container_uptime|container\\.uptime|tomcat|catalina|db\\.client).*"
 
 exporters:
-  otlp_http/grafana_cloud:
+  otlphttp/grafana_cloud:
     # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlphttpexporter
     endpoint: "${env:GRAFANA_CLOUD_OTLP_ENDPOINT}"
     auth:
@@ -122,39 +124,31 @@ connectors:
     host_identifiers: [ "host.name" ]
 
 service:
-  telemetry:
-    logs:
-      level: info
-  extensions: [ basicauth/grafana_cloud ]
+  extensions:
+    [
+      basicauth/grafana_cloud,
+    ]
   pipelines:
     traces:
       receivers: [ otlp ]
       processors:
-        [
-          resource/common,
-          resourcedetection,
-          transform/drop_unneeded_resource_attributes,
-          filter/drop_actuator,
-          batch,
-        ]
-      exporters: [ otlp_http/grafana_cloud, grafanacloud ]
-    metrics/otlp:
+        [ resourcedetection, transform/drop_unneeded_resource_attributes, filter/drop_actuator, batch ]
+      exporters: [ otlphttp/grafana_cloud, grafanacloud ]
+    metrics:
       receivers: [ otlp ]
       processors:
         [
-          resource/common,
           resourcedetection,
           transform/drop_unneeded_resource_attributes,
           transform/add_resource_attributes_as_metric_attributes,
-          filter/drop_actuator,
-          filter/keep_used_metrics,
           batch,
         ]
-      exporters: [ otlp_http/grafana_cloud ]
+      exporters: [ otlphttp/grafana_cloud ]
     metrics/docker:
       receivers: [ docker_stats ]
       processors:
         [
+          filter/docker_compose_project,
           resource/common,
           resourcedetection,
           transform/drop_unneeded_resource_attributes,
@@ -162,18 +156,17 @@ service:
           filter/keep_used_metrics,
           batch,
         ]
-      exporters: [ otlp_http/grafana_cloud ]
+      exporters: [ otlphttp/grafana_cloud ]
     metrics/grafanacloud:
       receivers: [ grafanacloud ]
       processors: [ batch ]
-      exporters: [ otlp_http/grafana_cloud ]
+      exporters: [ otlphttp/grafana_cloud ]
     logs:
       receivers: [ otlp ]
       processors:
         [
-          resource/common,
           resourcedetection,
           transform/drop_unneeded_resource_attributes,
           batch,
         ]
-      exporters: [ otlp_http/grafana_cloud ]
+      exporters: [ otlphttp/grafana_cloud ]

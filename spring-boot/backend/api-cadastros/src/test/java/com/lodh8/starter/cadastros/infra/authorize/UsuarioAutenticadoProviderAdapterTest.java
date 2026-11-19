@@ -3,9 +3,9 @@ package com.lodh8.starter.cadastros.infra.authorize;
 import com.lodh8.starter.authorize.domain.OAuthUser;
 import com.lodh8.starter.authorize.domain.OAuthUserDetails;
 import com.lodh8.starter.authorize.domain.UsuarioAutenticado;
-import com.lodh8.starter.backoffice.usuarios.app.port.UsuarioSistemaRepositoryPort;
-import com.lodh8.starter.backoffice.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.identity.grupos.app.GrupoService;
+import com.lodh8.starter.plataforma.usuarios.app.UsuarioSistemaService;
+import com.lodh8.starter.plataforma.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.shared.models.enums.Status;
 import com.lodh8.starter.shared.models.enums.TipoAcesso;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UsuarioAutenticadoProviderAdapterTest {
 
-    private UsuarioSistemaRepositoryPort usuarioSistemaRepository;
+    private UsuarioSistemaService usuarioSistemaService;
     private GrupoService grupoService;
     private CacheManager cacheManager;
     private Cache cache;
@@ -34,11 +34,11 @@ class UsuarioAutenticadoProviderAdapterTest {
 
     @BeforeEach
     void setUp() {
-        usuarioSistemaRepository = mock(UsuarioSistemaRepositoryPort.class);
+        usuarioSistemaService = mock(UsuarioSistemaService.class);
         grupoService = mock(GrupoService.class);
         cacheManager = mock(CacheManager.class);
         cache = mock(Cache.class);
-        adapter = new UsuarioAutenticadoProviderAdapter(usuarioSistemaRepository, grupoService, cacheManager);
+        adapter = new UsuarioAutenticadoProviderAdapter(usuarioSistemaService, grupoService, cacheManager);
     }
 
     @Test
@@ -63,7 +63,7 @@ class UsuarioAutenticadoProviderAdapterTest {
                 OffsetDateTime.now(),
                 OffsetDateTime.now()
         );
-        when(usuarioSistemaRepository.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
+        when(usuarioSistemaService.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
 
         // Act
         UsuarioAutenticado result = adapter.usuarioAutenticado(oAuthUser);
@@ -99,7 +99,7 @@ class UsuarioAutenticadoProviderAdapterTest {
                 OffsetDateTime.now(),
                 OffsetDateTime.now()
         );
-        when(usuarioSistemaRepository.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
+        when(usuarioSistemaService.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
 
         UsuarioAutenticadoProviderAdapter spyAdapter = spy(adapter);
         doReturn("").when(spyAdapter).getCacheKey(oAuthUser);
@@ -126,7 +126,7 @@ class UsuarioAutenticadoProviderAdapterTest {
         UsuarioAutenticado result = adapter.usuarioAutenticado(oAuthUser);
 
         assertEquals(cachedUser, result);
-        verify(usuarioSistemaRepository, never()).findByIdentityId(any());
+        verify(usuarioSistemaService, never()).findByIdentityId(any());
     }
 
     @Test
@@ -149,7 +149,7 @@ class UsuarioAutenticadoProviderAdapterTest {
                 OffsetDateTime.now(),
                 OffsetDateTime.now()
         );
-        when(usuarioSistemaRepository.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
+        when(usuarioSistemaService.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
         when(cache.get(identityId, UsuarioAutenticado.class)).thenReturn(null);
 
         UsuarioAutenticado result = adapter.usuarioAutenticado(oAuthUser);
@@ -178,7 +178,7 @@ class UsuarioAutenticadoProviderAdapterTest {
                 OffsetDateTime.now(),
                 OffsetDateTime.now()
         );
-        when(usuarioSistemaRepository.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
+        when(usuarioSistemaService.findByIdentityId(identityId)).thenReturn(Optional.of(usuarioSistema));
 
         UsuarioAutenticado result = adapter.getUsuarioAutenticado(oAuthUser);
 
@@ -196,7 +196,7 @@ class UsuarioAutenticadoProviderAdapterTest {
         when(oAuthUser.type()).thenReturn(TipoAcesso.USUARIO_SISTEMA);
         when(oAuthUser.userId()).thenReturn(identityId);
 
-        when(usuarioSistemaRepository.findByIdentityId(identityId)).thenReturn(Optional.empty());
+        when(usuarioSistemaService.findByIdentityId(identityId)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> adapter.getUsuarioAutenticado(oAuthUser));
     }
@@ -260,7 +260,7 @@ class UsuarioAutenticadoProviderAdapterTest {
 
         adapter.atualizarNome(usuarioId, "New Name", oAuthUser);
 
-        verify(usuarioSistemaRepository).updateNome(usuarioId, "New Name");
+        verify(usuarioSistemaService).updateNome(usuarioId, "New Name");
         verify(cache).evict("user-id");
     }
 }

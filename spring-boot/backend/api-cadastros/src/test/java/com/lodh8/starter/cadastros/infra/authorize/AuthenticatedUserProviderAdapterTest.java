@@ -4,10 +4,10 @@ import com.lodh8.starter.authorize.domain.GrupoAutenticado;
 import com.lodh8.starter.authorize.domain.OAuthUser;
 import com.lodh8.starter.authorize.domain.OAuthUserDetails;
 import com.lodh8.starter.authorize.domain.UsuarioAutenticado;
-import com.lodh8.starter.backoffice.usuarios.app.port.UsuarioSistemaRepositoryPort;
-import com.lodh8.starter.backoffice.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.identity.grupos.app.GrupoService;
 import com.lodh8.starter.identity.grupos.domain.Grupo;
+import com.lodh8.starter.plataforma.usuarios.app.UsuarioSistemaService;
+import com.lodh8.starter.plataforma.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.shared.models.enums.Status;
 import com.lodh8.starter.shared.models.enums.TipoAcesso;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 class AuthenticatedUserProviderAdapterTest {
 
     @Mock
-    private UsuarioSistemaRepositoryPort usuarioSistemaRepository;
+    private UsuarioSistemaService usuarioSistemaService;
 
     @Mock
     private GrupoService grupoService;
@@ -107,7 +107,7 @@ class AuthenticatedUserProviderAdapterTest {
 
         var usuarioSistema = mock(UsuarioSistema.class);
         when(usuarioSistema.id()).thenReturn(UUID.randomUUID());
-        when(usuarioSistemaRepository.findByIdentityId("user-id")).thenReturn(Optional.of(usuarioSistema));
+        when(usuarioSistemaService.findByIdentityId("user-id")).thenReturn(Optional.of(usuarioSistema));
 
         var result = adapter.getUsuarioAutenticado(oAuthUser);
 
@@ -170,7 +170,7 @@ class AuthenticatedUserProviderAdapterTest {
         when(oAuthUser.userId()).thenReturn("user-id");
 
         when(grupoService.findByIdentityId("user-id")).thenReturn(Optional.empty());
-        when(usuarioSistemaRepository.findByIdentityId("user-id")).thenReturn(Optional.empty());
+        when(usuarioSistemaService.findByIdentityId("user-id")).thenReturn(Optional.empty());
 
         assertNull(adapter.grupo(oAuthUser));
     }
@@ -183,7 +183,7 @@ class AuthenticatedUserProviderAdapterTest {
         when(oAuthUser.roles()).thenReturn(List.of("admin-sistemas"));
 
         when(grupoService.findByIdentityId("user-id")).thenReturn(Optional.empty());
-        when(usuarioSistemaRepository.findByIdentityId("user-id")).thenReturn(Optional.of(
+        when(usuarioSistemaService.findByIdentityId("user-id")).thenReturn(Optional.of(
                 new UsuarioSistema(
                         UUID.randomUUID(),
                         "user-id",
