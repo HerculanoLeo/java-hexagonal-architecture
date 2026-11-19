@@ -12,9 +12,6 @@ spring:
     password: 123
     parameters:
       app_role: develop
-  devtools:
-    livereload:
-      port: 40002
   mail:
     host: smtp.dummy.com
     username: administrador@dummy.comx
