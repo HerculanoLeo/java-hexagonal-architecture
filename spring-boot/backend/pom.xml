@@ -217,7 +217,7 @@
 <!--        </repository>-->
         <!-- MAVEN REPO PESSOAL -->
         <repository>
-            <id>artifact</id>
+            <id>artifacts</id>
             <url>https://artifacts.lodh8.com/maven/maven-releases/</url>
         </repository>
     </repositories>
