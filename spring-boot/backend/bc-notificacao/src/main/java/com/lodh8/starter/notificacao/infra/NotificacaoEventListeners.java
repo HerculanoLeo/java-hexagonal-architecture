@@ -9,6 +9,7 @@ import com.lodh8.starter.shared.exceptions.BadRequestException;
 import com.lodh8.starter.shared.models.annotations.ExcludeFromJacocoGeneratedReport;
 import com.lodh8.starter.shared.models.enums.FreemarkerTemplate;
 import com.lodh8.starter.shared.models.enums.NotificacaoConfiguracaoCodigo;
+import com.lodh8.starter.shared.utils.IdentificadorLog;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -40,15 +41,23 @@ public class NotificacaoEventListeners {
 
     @ApplicationModuleListener
     public void onNotificacaoRegisterEvent(NotificacaoRegisterEvent event) {
+        var id = event.notificacao().id();
+        log.info("notificacaoListener register inicio id={}", IdentificadorLog.mascarar(id));
+        log.debug("notificacaoListener register inicio id={}", id);
         try {
-            this.service.enviar(event.notificacao().id());
+            this.service.enviar(id);
+            log.info("notificacaoListener register fim id={}", IdentificadorLog.mascarar(id));
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("notificacaoListener register id={} erro", IdentificadorLog.mascarar(id), e);
         }
     }
 
     @ApplicationModuleListener
     public void onNotificacaoBoasVindasEvent(NotificacaoBoasVindasEvent event) {
+        log.info(
+                "notificacaoListener boasVindas inicio destinatario={}",
+                IdentificadorLog.mascarar(event.destinatario())
+        );
         try {
             var titulo = configuracaoService.findByCodigo(NotificacaoConfiguracaoCodigo.BOAS_VINDAS_TITULO)
                     .map(NotificacaoConfiguracao::valor)
@@ -79,13 +88,18 @@ public class NotificacaoEventListeners {
                     event.tipoNotificacao(),
                     new HashMap<>()
             ));
+            log.info("notificacaoListener boasVindas fim");
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("notificacaoListener boasVindas erro", e);
         }
     }
 
     @ApplicationModuleListener
     public void onNotificacaoTrocaSenhaEvent(NotificacaoTrocaSenhaEvent event) {
+        log.info(
+                "notificacaoListener trocaSenha inicio destinatario={}",
+                IdentificadorLog.mascarar(event.destinatario())
+        );
         try {
             var titulo = configuracaoService.findByCodigo(NotificacaoConfiguracaoCodigo.TROCA_SENHA_TITULO)
                     .map(NotificacaoConfiguracao::valor)
@@ -116,13 +130,18 @@ public class NotificacaoEventListeners {
                     event.tipoNotificacao(),
                     new HashMap<>()
             ));
+            log.info("notificacaoListener trocaSenha fim");
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("notificacaoListener trocaSenha erro", e);
         }
     }
 
     @ApplicationModuleListener
     public void onNotificacaoUsuarioAtivadoEvent(NotificacaoUsuarioAtivadoEvent event) {
+        log.info(
+                "notificacaoListener usuarioAtivado inicio destinatario={}",
+                IdentificadorLog.mascarar(event.destinatario())
+        );
         try {
             var titulo = configuracaoService.findByCodigo(NotificacaoConfiguracaoCodigo.USUARIO_ATIVADO_TITULO)
                     .map(NotificacaoConfiguracao::valor)
@@ -152,13 +171,18 @@ public class NotificacaoEventListeners {
                     event.tipoNotificacao(),
                     new HashMap<>()
             ));
+            log.info("notificacaoListener usuarioAtivado fim");
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("notificacaoListener usuarioAtivado erro", e);
         }
     }
 
     @ApplicationModuleListener
     public void onNotificacaoUsuarioInativadoEvent(NotificacaoUsuarioInativadoEvent event) {
+        log.info(
+                "notificacaoListener usuarioInativado inicio destinatario={}",
+                IdentificadorLog.mascarar(event.destinatario())
+        );
         try {
             var titulo = configuracaoService.findByCodigo(NotificacaoConfiguracaoCodigo.USUARIO_INATIVADO_TITULO)
                     .map(NotificacaoConfiguracao::valor)
@@ -183,8 +207,9 @@ public class NotificacaoEventListeners {
                     event.tipoNotificacao(),
                     new HashMap<>()
             ));
+            log.info("notificacaoListener usuarioInativado fim");
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("notificacaoListener usuarioInativado erro", e);
         }
     }
 

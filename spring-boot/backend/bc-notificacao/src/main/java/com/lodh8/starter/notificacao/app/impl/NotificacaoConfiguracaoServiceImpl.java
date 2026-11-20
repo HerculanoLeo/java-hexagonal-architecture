@@ -5,10 +5,12 @@ import com.lodh8.starter.notificacao.app.port.NotificacaoConfiguracaoRepositoryP
 import com.lodh8.starter.notificacao.domain.NotificacaoConfiguracao;
 import com.lodh8.starter.shared.models.enums.NotificacaoConfiguracaoCodigo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificacaoConfiguracaoServiceImpl implements NotificacaoConfiguracaoService {
@@ -17,6 +19,11 @@ public class NotificacaoConfiguracaoServiceImpl implements NotificacaoConfigurac
 
     @Override
     public Optional<NotificacaoConfiguracao> findByCodigo(NotificacaoConfiguracaoCodigo codigo) {
-        return repository.findByCodigo(codigo);
+        log.info("notificacaoConfiguracao findByCodigo codigo={}", codigo);
+        var result = repository.findByCodigo(codigo);
+        if (result.isEmpty()) {
+            log.warn("notificacaoConfiguracao findByCodigo codigo={} resultado=nao_encontrado", codigo);
+        }
+        return result;
     }
 }

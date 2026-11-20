@@ -9,6 +9,9 @@ Modular Monolith Java (**Spring Boot 4.2.x** + **Spring Modulith 2.2.x**) com de
 | [`backend-architecture.mdc`](.cursor/rules/backend-architecture.mdc) | Service vs Port, layout, Modulith, `@MappedEnum`, Specs |
 | [`backend-domains.mdc`](.cursor/rules/backend-domains.mdc) | Bounded contexts, DDD, matriz Modulith |
 | [`backend-testing.mdc`](.cursor/rules/backend-testing.mdc) | Testes JUnit/Mockito, JaCoCo |
+| [`backend-logging.mdc`](.cursor/rules/backend-logging.mdc) | INFO mascarado / DEBUG aberto, etapas da operação |
+| [`postman-collection.mdc`](.cursor/rules/postman-collection.mdc) | Endpoint → collection Postman |
+| [`../dependencias/collections/`](../dependencias/collections/) | Collection + environment local |
 
 ## Regra de ouro hexagonal
 
@@ -45,7 +48,7 @@ api-cadastros (composition root)
 ## Persistência / Liquibase
 
 - Changelogs por módulo; master em `api-cadastros`.
-- Schemas DB: manter nomes existentes (`plataformadmin`, `notification`, `location`, `security`).
+- Schemas DB: alinhar aos BCs (`plataforma`, `notificacao`, `localizacao`, `seguranca`).
 - UUID via DB `uuidv7()` + `@Generated(INSERT)`.
 
 ## Classificação DDD

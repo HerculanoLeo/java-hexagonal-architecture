@@ -4,10 +4,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/modulith/migrations/20260710-holiveira.yaml
   - include:
-      file: db/changelog/backoffice/migrations/20260710-holiveira.yaml
+      file: db/changelog/plataforma/migrations/20260710-holiveira.yaml
   - include:
-      file: db/changelog/notification/migrations/20260710-holiveira.yaml
+      file: db/changelog/notificacao/migrations/20260710-holiveira.yaml
   - include:
-      file: db/changelog/location/migrations/20260710-holiveira.yaml
+      file: db/changelog/localizacao/migrations/20260710-holiveira.yaml
   - include:
-      file: db/changelog/security/migrations/20260710-holiveira.yaml
+      file: db/changelog/seguranca/migrations/20260710-holiveira.yaml

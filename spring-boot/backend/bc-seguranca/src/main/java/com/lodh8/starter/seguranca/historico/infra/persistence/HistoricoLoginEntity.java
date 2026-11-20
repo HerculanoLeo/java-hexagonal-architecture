@@ -20,7 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "tb_historico_login", schema = "security")
+@Table(name = "tb_historico_login", schema = "seguranca")
 public class HistoricoLoginEntity implements Serializable {
 
     @Serial

@@ -6,6 +6,7 @@ import com.lodh8.starter.localizacao.cep.domain.CEP;
 import com.lodh8.starter.localizacao.cep.infra.dtos.CepResponse;
 import com.lodh8.starter.localizacao.municipio.app.MunicipioService;
 import com.lodh8.starter.shared.exceptions.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
@@ -35,6 +36,7 @@ public class CEPCacheService {
 
     private final MunicipioService municipioService;
 
+    @Autowired
     public CEPCacheService(JsonMapper objectMapper, MunicipioService municipioService) {
         this(restClientBuilder(objectMapper).build(), municipioService);
     }

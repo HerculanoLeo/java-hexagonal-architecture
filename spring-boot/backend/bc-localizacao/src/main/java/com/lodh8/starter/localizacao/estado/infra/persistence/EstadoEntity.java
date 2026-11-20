@@ -14,7 +14,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "tb_estado", schema = "location")
+@Table(name = "tb_estado", schema = "localizacao")
 public class EstadoEntity implements Serializable {
 
     @Serial
@@ -22,7 +22,7 @@ public class EstadoEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_ESTADO")
-    @SequenceGenerator(name = "SQ_ESTADO", sequenceName = "sq_estado", schema = "location", allocationSize = 1)
+    @SequenceGenerator(name = "SQ_ESTADO", sequenceName = "sq_estado", schema = "localizacao", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 

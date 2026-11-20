@@ -19,7 +19,6 @@ public class KeycloakAdminConfiguration {
                 .clientId(keycloakAttributes.clientId())
                 .clientSecret(keycloakAttributes.clientSecret())
                 .realm(keycloakAttributes.realm())
-                .scope("email profile openid")
                 .build();
     }
 

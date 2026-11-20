@@ -13,8 +13,10 @@ import com.lodh8.starter.shared.models.annotations.ExcludeFromJacocoGeneratedRep
 import com.lodh8.starter.shared.models.enums.FreemarkerTemplate;
 import com.lodh8.starter.shared.models.enums.NotificacaoConfiguracaoCodigo;
 import com.lodh8.starter.shared.models.enums.TipoNotificacao;
+import com.lodh8.starter.shared.utils.IdentificadorLog;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificacaoTesteServiceImpl implements NotificacaoTesteService {
@@ -48,7 +51,9 @@ public class NotificacaoTesteServiceImpl implements NotificacaoTesteService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void enviarEmailTeste(NotificacaoTesteTipo tipo) {
+        log.info("notificacaoTeste enviarEmailTeste inicio tipo={}", tipo);
         var usuario = requireUsuarioAtual();
+        log.debug("notificacaoTeste enviarEmailTeste usuario email={}", usuario.email());
         var registro = switch (tipo) {
             case TESTE -> buildTeste(usuario);
             case BOAS_VINDAS -> buildBoasVindas(usuario);
@@ -57,6 +62,11 @@ public class NotificacaoTesteServiceImpl implements NotificacaoTesteService {
             case USUARIO_INATIVADO -> buildUsuarioInativado(usuario);
         };
         notificacaoService.register(registro);
+        log.info(
+                "notificacaoTeste enviarEmailTeste fim tipo={} email={}",
+                tipo,
+                IdentificadorLog.mascarar(usuario.email())
+        );
     }
 
     private NotificacaoRegister buildTeste(NotificacaoUsuarioAtual usuario) {
@@ -117,6 +127,7 @@ public class NotificacaoTesteServiceImpl implements NotificacaoTesteService {
     private NotificacaoUsuarioAtual requireUsuarioAtual() {
         var usuario = usuarioAtualPort.usuarioAtual();
         if (usuario == null || StringUtils.isBlank(usuario.email())) {
+            log.warn("notificacaoTeste requireUsuarioAtual resultado=email_ausente");
             throw new BadRequestException("usuário autenticado sem e-mail para envio de teste");
         }
         if (StringUtils.isBlank(usuario.nome())) {
@@ -128,13 +139,19 @@ public class NotificacaoTesteServiceImpl implements NotificacaoTesteService {
     private String titulo(NotificacaoConfiguracaoCodigo codigo) {
         return configuracaoService.findByCodigo(codigo)
                 .map(NotificacaoConfiguracao::valor)
-                .orElseThrow(() -> new BadRequestException("configuração de notificação não encontrada: " + codigo.getValue()));
+                .orElseThrow(() -> {
+                    log.warn("notificacaoTeste titulo codigo={} resultado=nao_encontrado", codigo);
+                    return new BadRequestException("configuração de notificação não encontrada: " + codigo.getValue());
+                });
     }
 
     private String defaultUrl() {
         return configuracaoService.findByCodigo(NotificacaoConfiguracaoCodigo.DEFAULT_URL_LINK)
                 .map(NotificacaoConfiguracao::valor)
-                .orElseThrow(() -> new BadRequestException("configuração default_url_link não encontrada"));
+                .orElseThrow(() -> {
+                    log.warn("notificacaoTeste defaultUrl resultado=nao_encontrado");
+                    return new BadRequestException("configuração default_url_link não encontrada");
+                });
     }
 
     @ExcludeFromJacocoGeneratedReport

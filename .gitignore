@@ -71,5 +71,6 @@ package-lock.json
 /logs
 /**/target/
 application-mail_*.yml
+application-dev.yml
 application-hml.yml
 application-prd.yml

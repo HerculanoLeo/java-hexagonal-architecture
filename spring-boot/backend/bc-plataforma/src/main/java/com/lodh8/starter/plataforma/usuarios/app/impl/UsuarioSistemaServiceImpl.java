@@ -19,7 +19,9 @@ import com.lodh8.starter.shared.events.app.EventPublisherPort;
 import com.lodh8.starter.shared.exceptions.ConflictException;
 import com.lodh8.starter.shared.exceptions.NotFoundException;
 import com.lodh8.starter.shared.models.enums.TipoAcesso;
+import com.lodh8.starter.shared.utils.IdentificadorLog;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UsuarioSistemaServiceImpl implements UsuarioSistemaService {
@@ -47,32 +50,63 @@ public class UsuarioSistemaServiceImpl implements UsuarioSistemaService {
 
     @Override
     public Collection<UsuarioSistema> findAll(UsuarioSistemaSearch requestEntity) {
-        return this.repository.findAll(requestEntity);
+        log.info("usuarioSistema findAll inicio");
+        log.debug("usuarioSistema findAll inicio search={}", requestEntity);
+        var result = this.repository.findAll(requestEntity);
+        log.info("usuarioSistema findAll fim total={}", result.size());
+        return result;
     }
 
     public Optional<UsuarioSistema> findById(UUID id) {
-        return this.repository.findById(id);
+        log.info("usuarioSistema findById id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema findById id={}", id);
+        var result = this.repository.findById(id);
+        if (result.isEmpty()) {
+            log.warn("usuarioSistema findById id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+        }
+        return result;
     }
 
     public Optional<UsuarioSistema> findByEmail(String email) {
-        return this.repository.findByEmail(email);
+        log.info("usuarioSistema findByEmail email={}", IdentificadorLog.mascarar(email));
+        log.debug("usuarioSistema findByEmail email={}", email);
+        var result = this.repository.findByEmail(email);
+        if (result.isEmpty()) {
+            log.warn("usuarioSistema findByEmail email={} resultado=nao_encontrado", IdentificadorLog.mascarar(email));
+        }
+        return result;
     }
 
     public Optional<UsuarioSistema> findByIdentityId(String identityId) {
-        return this.repository.findByIdentityId(identityId);
+        log.info("usuarioSistema findByIdentityId identityId={}", IdentificadorLog.mascarar(identityId));
+        log.debug("usuarioSistema findByIdentityId identityId={}", identityId);
+        var result = this.repository.findByIdentityId(identityId);
+        if (result.isEmpty()) {
+            log.warn("usuarioSistema findByIdentityId identityId={} resultado=nao_encontrado", IdentificadorLog.mascarar(identityId));
+        }
+        return result;
     }
 
     public Optional<UsuarioSistemaGrupo> findGrupoById(UUID id) {
-        return this.repository.findById(id)
+        log.info("usuarioSistema findGrupoById id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema findGrupoById id={}", id);
+        var result = this.repository.findById(id)
                 .flatMap(e -> this.grupoSistemaService.findByIdentityId(e.identityId()))
                 .map(e -> new UsuarioSistemaGrupo(e.id(), e.nome()));
+        if (result.isEmpty()) {
+            log.warn("usuarioSistema findGrupoById id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Throwable.class)
     public UsuarioSistema register(UsuarioSistemaRegister requestEntity) throws ValidatorException {
+        log.info("usuarioSistema register inicio email={}", IdentificadorLog.mascarar(requestEntity.email()));
+        log.debug("usuarioSistema register inicio email={} main={}", requestEntity.email(), requestEntity.main());
         this.registerValidator.validate(requestEntity);
 
         if (this.findByEmail(requestEntity.email()).isPresent()) {
+            log.warn("usuarioSistema register conflito email={}", IdentificadorLog.mascarar(requestEntity.email()));
             throw new ConflictException("e-mail já cadastrado");
         }
 
@@ -94,8 +128,11 @@ public class UsuarioSistemaServiceImpl implements UsuarioSistemaService {
 
             events.publishEvent(new UsuarioSistemaCriadoEvent(usuarioSistema));
 
+            log.info("usuarioSistema register fim id={}", IdentificadorLog.mascarar(usuarioSistema.id()));
+            log.debug("usuarioSistema register fim id={}", usuarioSistema.id());
             return usuarioSistema;
         } catch (Exception e) {
+            log.error("usuarioSistema register rollback identityId={}", IdentificadorLog.mascarar(usuario.id()), e);
             this.usuarioService.delete(usuario.id());
             throw e;
         }
@@ -103,9 +140,14 @@ public class UsuarioSistemaServiceImpl implements UsuarioSistemaService {
 
     @Transactional(rollbackFor = Throwable.class)
     public void update(UUID id, UsuarioSistemaUpdate requestEntity) throws ValidatorException {
+        log.info("usuarioSistema update inicio id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema update inicio id={}", id);
         this.updateValidator.validate(requestEntity);
 
-        var entity = this.repository.findById(id).orElseThrow(() -> new NotFoundException("usuário não encontrado"));
+        var entity = this.repository.findById(id).orElseThrow(() -> {
+            log.warn("usuarioSistema update id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+            return new NotFoundException("usuário não encontrado");
+        });
 
         // null = não altera grupos (self-service); blank = remove grupos (main sem grupo).
         var grupoId = requestEntity.main()
@@ -122,6 +164,8 @@ public class UsuarioSistemaServiceImpl implements UsuarioSistemaService {
         this.repository.update(id, requestEntity);
 
         this.events.publishEvent(new UsuarioSistemaAtualizadoEvent(id));
+        log.info("usuarioSistema update fim id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema update fim id={}", id);
     }
 
     private static String blankToNull(String value) {
@@ -133,29 +177,54 @@ public class UsuarioSistemaServiceImpl implements UsuarioSistemaService {
 
     @Transactional(rollbackFor = Throwable.class)
     public void ativar(UUID id) {
-        var entity = this.repository.findById(id).orElseThrow(() -> new NotFoundException("usuário não encontrado"));
+        log.info("usuarioSistema ativar inicio id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema ativar inicio id={}", id);
+        var entity = this.repository.findById(id).orElseThrow(() -> {
+            log.warn("usuarioSistema ativar id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+            return new NotFoundException("usuário não encontrado");
+        });
         this.usuarioService.ativar(entity.identityId());
         this.repository.ativar(id);
         this.events.publishEvent(new UsuarioSistemaAtivadoEvent(entity));
+        log.info("usuarioSistema ativar fim id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema ativar fim id={}", id);
     }
 
     @Transactional(rollbackFor = Throwable.class)
     public void inativar(UUID id) {
-        var entity = this.repository.findById(id).orElseThrow(() -> new NotFoundException("usuário não encontrado"));
+        log.info("usuarioSistema inativar inicio id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema inativar inicio id={}", id);
+        var entity = this.repository.findById(id).orElseThrow(() -> {
+            log.warn("usuarioSistema inativar id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+            return new NotFoundException("usuário não encontrado");
+        });
         this.usuarioService.inativar(entity.identityId());
         this.repository.inativar(id);
         this.events.publishEvent(new UsuarioSistemaInativadoEvent(entity));
+        log.info("usuarioSistema inativar fim id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema inativar fim id={}", id);
     }
 
     public void resetPassword(UUID id) {
-        var entity = this.repository.findById(id).orElseThrow(() -> new NotFoundException("usuário não encontrado"));
+        log.info("usuarioSistema resetPassword inicio id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema resetPassword inicio id={}", id);
+        var entity = this.repository.findById(id).orElseThrow(() -> {
+            log.warn("usuarioSistema resetPassword id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+            return new NotFoundException("usuário não encontrado");
+        });
         this.usuarioService.resetPassword(entity.identityId(), redirectActionPort.getRedirectAction());
+        log.info("usuarioSistema resetPassword fim id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema resetPassword fim id={}", id);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void updateNome(UUID id, String nome) {
+        log.info("usuarioSistema updateNome inicio id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema updateNome inicio id={}", id);
         this.repository.updateNome(id, nome);
+        log.info("usuarioSistema updateNome fim id={}", IdentificadorLog.mascarar(id));
+        log.debug("usuarioSistema updateNome fim id={}", id);
     }
 
 }

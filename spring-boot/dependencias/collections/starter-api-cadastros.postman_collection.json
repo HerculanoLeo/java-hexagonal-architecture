@@ -1,0 +1,1175 @@
+{
+  "info": {
+    "_postman_id": "99fe0427-fc82-4662-98cc-8e9b18689fc5",
+    "name": "api",
+    "description": "API Java (`/api/v1`). OAuth 2.0 Authorization Code + PKCE (browser) com auto-refresh. Environment: `local`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "oauth2",
+    "oauth2": [
+      {
+        "key": "grant_type",
+        "value": "authorization_code",
+        "type": "string"
+      },
+      {
+        "key": "authUrl",
+        "value": "{{authUrl}}",
+        "type": "string"
+      },
+      {
+        "key": "accessTokenUrl",
+        "value": "{{tokenUrl}}",
+        "type": "string"
+      },
+      {
+        "key": "refreshTokenUrl",
+        "value": "{{tokenUrl}}",
+        "type": "string"
+      },
+      {
+        "key": "clientId",
+        "value": "{{client_id}}",
+        "type": "string"
+      },
+      {
+        "key": "clientSecret",
+        "value": "{{client_secret}}",
+        "type": "string"
+      },
+      {
+        "key": "scope",
+        "value": "{{oauthScope}}",
+        "type": "string"
+      },
+      {
+        "key": "redirect_uri",
+        "value": "{{redirectUri}}",
+        "type": "string"
+      },
+      {
+        "key": "addTokenTo",
+        "value": "header",
+        "type": "string"
+      },
+      {
+        "key": "client_authentication",
+        "value": "body",
+        "type": "string"
+      },
+      {
+        "key": "useBrowser",
+        "value": true,
+        "type": "boolean"
+      },
+      {
+        "key": "usePkce",
+        "value": true,
+        "type": "boolean"
+      },
+      {
+        "key": "challengeAlgorithm",
+        "value": "S256",
+        "type": "string"
+      },
+      {
+        "key": "tokenName",
+        "value": "Keycloak",
+        "type": "string"
+      },
+      {
+        "key": "auto_refresh_token",
+        "value": true,
+        "type": "boolean"
+      },
+      {
+        "key": "refreshRequestParams",
+        "value": [
+          {
+            "key": "grant_type",
+            "value": "refresh_token",
+            "enabled": true,
+            "send_as": "request_body"
+          },
+          {
+            "key": "client_id",
+            "value": "{{client_id}}",
+            "enabled": true,
+            "send_as": "request_body"
+          },
+          {
+            "key": "client_secret",
+            "value": "{{client_secret}}",
+            "enabled": true,
+            "send_as": "request_body"
+          }
+        ],
+        "type": "any"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update me",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Administrador\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "troca senha",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me/senha",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me",
+                "senha"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senhaAtual\": \"SenhaAtual1!\",\n  \"novaSenha\": \"SenhaNova1!\",\n  \"confirmacaoSenha\": \"SenhaNova1!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "grupo autenticado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/grupo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "grupo"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Plataforma",
+      "item": [
+        {
+          "name": "Usuario",
+          "item": [
+            {
+              "name": "listar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario?nome=&email=&status=A",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario"
+                  ],
+                  "query": [
+                    {
+                      "key": "nome",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "email",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status",
+                      "value": "A",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "buscar por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario/{{usuarioId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario",
+                    "{{usuarioId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "grupos do usuario",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario/{{usuarioId}}/grupo",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario",
+                    "{{usuarioId}}",
+                    "grupo"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "cadastrar",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"main\": false,\n  \"nome\": \"Operador\",\n  \"email\": \"operador@dummy.com\",\n  \"senha\": \"SenhaForte1!\",\n  \"grupoId\": \"{{grupoId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "atualizar",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario/{{usuarioId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario",
+                    "{{usuarioId}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"main\": false,\n  \"nome\": \"Operador Atualizado\",\n  \"grupoId\": \"{{grupoId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "ativar",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario/{{usuarioId}}/ativar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario",
+                    "{{usuarioId}}",
+                    "ativar"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "inativar",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario/{{usuarioId}}/inativar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario",
+                    "{{usuarioId}}",
+                    "inativar"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "reset password",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/usuario/{{usuarioId}}/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "usuario",
+                    "{{usuarioId}}",
+                    "reset-password"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Grupo",
+          "item": [
+            {
+              "name": "listar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/grupo?nome=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "grupo"
+                  ],
+                  "query": [
+                    {
+                      "key": "nome",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "buscar por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/grupo/{{grupoId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "grupo",
+                    "{{grupoId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "cadastrar",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/grupo",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "grupo"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Operadores\",\n  \"roles\": [\n    \"usuarios-sistemas\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "atualizar",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/grupo/{{grupoId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "grupo",
+                    "{{grupoId}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Operadores\",\n  \"roles\": [\n    \"usuarios-sistemas\",\n    \"grupos-sistemas\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "excluir",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/grupo/{{grupoId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "grupo",
+                    "{{grupoId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Roles",
+          "item": [
+            {
+              "name": "listar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sistema/roles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sistema",
+                    "roles"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Localizacao",
+      "item": [
+        {
+          "name": "CEP",
+          "item": [
+            {
+              "name": "buscar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/cep/{{cep}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "cep",
+                    "{{cep}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Estado",
+          "item": [
+            {
+              "name": "listar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/estado?nome=&sigla=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "estado"
+                  ],
+                  "query": [
+                    {
+                      "key": "nome",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sigla",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "buscar por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/estado/{{estadoId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "estado",
+                    "{{estadoId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "buscar por sigla",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/estado/sigla/{{estadoSigla}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "estado",
+                    "sigla",
+                    "{{estadoSigla}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Municipio",
+          "item": [
+            {
+              "name": "listar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/municipio?nome=&estadoId=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "municipio"
+                  ],
+                  "query": [
+                    {
+                      "key": "nome",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "estadoId",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "buscar por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/municipio/{{municipioId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "municipio",
+                    "{{municipioId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "cadastrar",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/municipio",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "municipio"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Municipio Exemplo\",\n  \"estadoId\": 35,\n  \"status\": \"A\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "atualizar",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/municipio/{{municipioId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "municipio",
+                    "{{municipioId}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Municipio Exemplo\",\n  \"estadoId\": 35,\n  \"status\": \"A\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "excluir",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/localizacao/municipio/{{municipioId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "localizacao",
+                    "municipio",
+                    "{{municipioId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notificacao",
+      "item": [
+        {
+          "name": "listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notificacao?status=&tipo=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notificacao"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "tipo",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "buscar por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notificacao/{{notificacaoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notificacao",
+                "{{notificacaoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "email teste (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notificacao/email/teste",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notificacao",
+                "email",
+                "teste"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "email teste por tipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notificacao/teste/email/{{notificacaoTesteTipo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notificacao",
+                "teste",
+                "email",
+                "{{notificacaoTesteTipo}}"
+              ]
+            },
+            "description": "Tipos: TESTE, BOAS_VINDAS, TROCA_SENHA, USUARIO_ATIVADO, USUARIO_INATIVADO"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Seguranca",
+      "item": [
+        {
+          "name": "Historico login",
+          "item": [
+            {
+              "name": "listar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/seguranca/historico-logins?email=&sucesso=true",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "seguranca",
+                    "historico-logins"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sucesso",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "registrar",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/seguranca/historico-logins",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "seguranca",
+                    "historico-logins"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ip\": \"127.0.0.1\",\n  \"userAgent\": \"PostmanRuntime\",\n  \"sessaoBffId\": \"sessao-dummy\",\n  \"email\": \"administrador@dummy.com\",\n  \"nome\": \"Sistemas\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Sessoes",
+          "item": [
+            {
+              "name": "encerrar por identity",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/seguranca/sessoes/{{identityId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "seguranca",
+                    "sessoes",
+                    "{{identityId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

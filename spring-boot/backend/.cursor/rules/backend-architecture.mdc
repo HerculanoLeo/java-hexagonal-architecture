@@ -98,7 +98,7 @@ Nomenclatura Maven/pacote: BCs de negócio em **português** (`bc-plataforma`, `
 - **PostgreSQL 18+**. UUID: `DEFAULT uuidv7()` no DB; entity `@Generated(event = INSERT)` + `insertable = false`.
 - Datas: **`OffsetDateTime`** no domínio/JPA/API; **`Instant`** só em fronteira externa (JWT).
 - Audit: `@CreationTimestamp` / `@UpdateTimestamp`.
-- Liquibase por módulo; schemas DB existentes (ex.: `plataformadmin`) — não renomear sem squash.
+- Liquibase por módulo; schemas DB alinhados aos BCs (`plataforma`, `notificacao`, `localizacao`, `seguranca`).
 - Specs: metamodel `*Entity_`; opcionais `null` → não filtra; nomes `likeX` / `gtOrEqX` / `ltOrEqX`.
 
 ## MapStruct (`infra/mapper/`)

@@ -1,7 +1,7 @@
 package com.lodh8.starter.cadastros.infra.configuration.security;
 
 import com.lodh8.starter.cadastros.infra.attributes.WebAttributes;
-import lombok.RequiredArgsConstructor;
+import com.lodh8.starter.cadastros.infra.logging.LoggingMdcFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,19 +13,25 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
-@RequiredArgsConstructor
 public class SecurityConfiguration {
+
+    @Bean
+    LoggingMdcFilter loggingMdcFilter() {
+        return new LoggingMdcFilter();
+    }
 
     @Bean
     SecurityFilterChain filterChain(
             HttpSecurity http,
-            @Qualifier("authenticationManagerDecorator") AuthenticationManager manager
+            @Qualifier("authenticationManagerDecorator") AuthenticationManager manager,
+            LoggingMdcFilter loggingMdcFilter
     ) {
         http
                 .securityMatcher("/**")
@@ -49,6 +55,7 @@ public class SecurityConfiguration {
                         configurer.jwt((jwt) -> jwt.authenticationManager(manager))
                 )
                 .cors(Customizer.withDefaults())
+                .addFilterAfter(loggingMdcFilter, BearerTokenAuthenticationFilter.class)
         ;
 
         return http.build();

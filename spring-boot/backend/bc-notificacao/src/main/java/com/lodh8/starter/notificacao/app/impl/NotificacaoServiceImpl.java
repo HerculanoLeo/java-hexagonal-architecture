@@ -12,6 +12,7 @@ import com.lodh8.starter.shared.events.app.EventPublisherPort;
 import com.lodh8.starter.shared.exceptions.BadRequestException;
 import com.lodh8.starter.shared.exceptions.ConflictException;
 import com.lodh8.starter.shared.models.enums.NotificacaoStatus;
+import com.lodh8.starter.shared.utils.IdentificadorLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,39 +43,62 @@ public class NotificacaoServiceImpl implements NotificacaoService {
 
     @Override
     public Collection<Notificacao> findAll(NotificacaoSearch requestEntity) {
-        return this.repository.findAll(requestEntity);
+        log.info("notificacao findAll inicio");
+        log.debug("notificacao findAll inicio search={}", requestEntity);
+        var result = this.repository.findAll(requestEntity);
+        log.info("notificacao findAll fim total={}", result.size());
+        return result;
     }
 
     @Override
     public Optional<Notificacao> findById(UUID id) {
-        return this.repository.findById(id);
+        log.info("notificacao findById id={}", IdentificadorLog.mascarar(id));
+        log.debug("notificacao findById id={}", id);
+        var result = this.repository.findById(id);
+        if (result.isEmpty()) {
+            log.warn("notificacao findById id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+        }
+        return result;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Notificacao register(NotificacaoRegister requestEntity) {
+        log.info("notificacao register inicio tipo={}", requestEntity.tipo());
+        log.debug("notificacao register inicio tipo={} destinatarios={}", requestEntity.tipo(), requestEntity.destinatarios());
         var notificacao = this.repository.register(requestEntity);
         events.publishEvent(new NotificacaoRegisterEvent(notificacao));
+        log.info("notificacao register fim id={}", IdentificadorLog.mascarar(notificacao.id()));
+        log.debug("notificacao register fim id={}", notificacao.id());
         return notificacao;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void enviar(UUID id) {
-        var notificacao = this.repository.findById(id).orElseThrow();
+        log.info("notificacao enviar inicio id={}", IdentificadorLog.mascarar(id));
+        log.debug("notificacao enviar inicio id={}", id);
+        var notificacaoOpt = this.repository.findById(id);
+        if (notificacaoOpt.isEmpty()) {
+            log.warn("notificacao enviar id={} resultado=nao_encontrado", IdentificadorLog.mascarar(id));
+        }
+        var notificacao = notificacaoOpt.orElseThrow();
 
         if (!NotificacaoStatus.PENDENTE.equals(notificacao.status())) {
+            log.warn("notificacao enviar id={} resultado=status_invalido status={}", IdentificadorLog.mascarar(id), notificacao.status());
             throw new BadRequestException("somente notificações pendentes podem ser enviadas");
         }
 
         enviar(notificacao);
+        log.info("notificacao enviar fim id={}", IdentificadorLog.mascarar(id));
+        log.debug("notificacao enviar fim id={}", id);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void reenvio(OffsetDateTime dataSolicitacaoDe, OffsetDateTime dataSolicitacaoAte, Integer tentativasMaxima) {
         try {
-            log.info("iniciando processamento das notificacoes");
+            log.info("notificacao reenvio inicio tentativasMaxima={}", tentativasMaxima);
 
             var notificacoes = findAll(new NotificacaoSearch(
                     null,
@@ -86,32 +110,36 @@ public class NotificacaoServiceImpl implements NotificacaoService {
             ));
 
             if (!notificacoes.isEmpty()) {
-                log.info("ha {} notificacoes para serem processadas.", notificacoes.size());
+                log.info("notificacao reenvio total={}", notificacoes.size());
 
                 var futures = notificacoes.stream()
                         .map(notificacao -> CompletableFuture.runAsync(() -> enviar(notificacao), taskExecutor))
                         .toArray(CompletableFuture[]::new);
                 CompletableFuture.allOf(futures).join();
             } else {
-                log.info("nenhuma notificacao encontrada para processamento");
+                log.info("notificacao reenvio total=0");
             }
         } catch (Exception ex) {
-            log.error("erro ao processar as notificacoes", ex);
+            log.error("notificacao reenvio erro", ex);
         }
-        log.info("finalizado o processamento das notificacoes");
+        log.info("notificacao reenvio fim");
     }
 
     @Transactional(rollbackFor = Throwable.class)
     protected void enviar(Notificacao notificacao) {
+        var idMask = IdentificadorLog.mascarar(notificacao.id());
         try {
             var sender = this.senders.stream()
                     .filter(s -> s.suporta(notificacao.tipo()))
                     .findFirst()
-                    .orElseThrow(() -> new ConflictException("tipo de notificação não implementada"));
+                    .orElseThrow(() -> {
+                        log.warn("notificacao enviarInterno id={} resultado=tipo_nao_implementado tipo={}", idMask, notificacao.tipo());
+                        return new ConflictException("tipo de notificação não implementada");
+                    });
             sender.enviar(notificacao);
             this.repository.enviado(notificacao.id());
         } catch (Exception e) {
-            log.error("falha ao enviar a notificacao de id {}", notificacao.id(), e);
+            log.error("notificacao enviarInterno id={} falha", idMask, e);
             this.repository.erro(notificacao.id(), notificacao.tentativas() + 1, new NotificacaoError(e.getMessage(), OffsetDateTime.now()));
         }
     }

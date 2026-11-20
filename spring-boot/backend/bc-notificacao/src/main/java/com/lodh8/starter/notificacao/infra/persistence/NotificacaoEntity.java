@@ -25,7 +25,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "tb_notificacao", schema = "notification")
+@Table(name = "tb_notificacao", schema = "notificacao")
 public class NotificacaoEntity implements Serializable {
 
     @Serial

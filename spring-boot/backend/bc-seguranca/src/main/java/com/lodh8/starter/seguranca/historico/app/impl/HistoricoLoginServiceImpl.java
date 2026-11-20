@@ -9,6 +9,7 @@ import com.lodh8.starter.seguranca.historico.domain.HistoricoLogin;
 import com.lodh8.starter.seguranca.historico.domain.HistoricoLoginRegister;
 import com.lodh8.starter.seguranca.historico.domain.HistoricoLoginSearch;
 import com.lodh8.starter.shared.models.enums.TipoAcesso;
+import com.lodh8.starter.shared.utils.IdentificadorLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -31,19 +32,31 @@ public class HistoricoLoginServiceImpl implements HistoricoLoginService {
 
     @Override
     public Collection<HistoricoLogin> findAll(HistoricoLoginSearch search) {
-        return this.repository.findAll(search);
+        log.info("historicoLogin findAll inicio");
+        log.debug("historicoLogin findAll inicio search={}", search);
+        var result = this.repository.findAll(search);
+        log.info("historicoLogin findAll fim total={}", result.size());
+        return result;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void register(String ip, String userAgent, String sessaoBffId, String email, String nome) {
+        log.info("historicoLogin register inicio");
+        log.debug(
+                "historicoLogin register inicio ip={} email={} sessaoBffId={}",
+                ip,
+                email,
+                sessaoBffId
+        );
         if (StringUtils.isNotBlank(sessaoBffId) && this.repository.existsBySessaoBffId(sessaoBffId)) {
+            log.info("historicoLogin register fim resultado=duplicado_sessao");
             return;
         }
 
         var oauthUser = this.usuarioAutenticadoService.oauthUser();
         if (oauthUser == null || StringUtils.isBlank(oauthUser.userId())) {
-            log.warn("historico-login: usuário OAuth ausente; registro ignorado");
+            log.warn("historicoLogin register resultado=oauth_ausente");
             return;
         }
 
@@ -68,6 +81,12 @@ public class HistoricoLoginServiceImpl implements HistoricoLoginService {
                 StringUtils.trimToNull(userAgent),
                 StringUtils.trimToNull(sessaoBffId)
         ));
+        log.info(
+                "historicoLogin register fim userId={} tipo={}",
+                IdentificadorLog.mascarar(oauthUser.userId()),
+                tipo
+        );
+        log.debug("historicoLogin register fim userId={} tipo={}", oauthUser.userId(), tipo);
     }
 
 }

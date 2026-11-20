@@ -6,10 +6,12 @@ import com.lodh8.starter.plataforma.roles.app.port.RoleSistemaMapperPort;
 import com.lodh8.starter.plataforma.roles.domain.RoleSistema;
 import com.lodh8.starter.shared.models.enums.TipoAcesso;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoleSistemaServiceImpl implements RoleSistemaService {
@@ -20,6 +22,9 @@ public class RoleSistemaServiceImpl implements RoleSistemaService {
 
     @Override
     public Collection<RoleSistema> roles() {
-        return roleService.findAllByTipo(TipoAcesso.USUARIO_SISTEMA).stream().map(mapper::domain).toList();
+        log.info("roleSistema roles inicio tipo={}", TipoAcesso.USUARIO_SISTEMA);
+        var result = roleService.findAllByTipo(TipoAcesso.USUARIO_SISTEMA).stream().map(mapper::domain).toList();
+        log.info("roleSistema roles fim total={}", result.size());
+        return result;
     }
 }

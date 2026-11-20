@@ -13,8 +13,8 @@ public interface MunicipioEntityRepository extends JpaRepository<MunicipioEntity
     @Query(value =
             """
                     SELECT mun.*
-                    FROM location.tb_municipio mun
-                    INNER JOIN location.tb_estado est ON mun.id_estado = est.id
+                    FROM localizacao.tb_municipio mun
+                    INNER JOIN localizacao.tb_estado est ON mun.id_estado = est.id
                     WHERE UPPER(UNACCENT(mun.nome)) = UPPER(UNACCENT(:nome))
                     AND (UPPER(est.sigla) = UPPER(:uf) OR UPPER(UNACCENT(est.nome)) = UPPER(UNACCENT(:uf)))
                     ORDER BY mun.id LIMIT 1

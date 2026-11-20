@@ -11,12 +11,12 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "tb_municipio", schema = "location")
+@Table(name = "tb_municipio", schema = "localizacao")
 public class MunicipioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_MUNICIPIO")
-    @SequenceGenerator(name = "SQ_MUNICIPIO", sequenceName = "sq_municipio", schema = "location", allocationSize = 1)
+    @SequenceGenerator(name = "SQ_MUNICIPIO", sequenceName = "sq_municipio", schema = "localizacao", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
