@@ -55,9 +55,8 @@ O deploy faz checkout de `https://github.com/HerculanoLeo/deploy-ansible-pipelin
 | ID | Uso |
 |----|-----|
 | `github-herculano` | Checkout da app, shared libraries e `deploy-ansible-pipelines` (GitHub App). Em **Avançado**, use *Specify accessible repositories* com Owner `HerculanoLeo` — *Infer accessible repository* **quebra** o load de Pipeline Libraries |
-| `pipeline` | Auth HTTP da Version API + become Ansible |
-| `dockerhubaccount` | Push das imagens no build (default da lib) |
-| `dockerhub` | Login no registry no deploy |
+| `devops` | Auth HTTP da Version API (`httpRequest`) + become Ansible |
+| `artifacts-keeper` | Username/password do Artifact Keeper (`artifacts.lodh8.com`) — push no build e pull no deploy |
 | `pipeline-maven-settings` | Config File Provider — `settings.xml` (GitHub Packages / deps privadas) |
 | `develop-env-secrets` / `staging-env-secrets` / `production-env-secrets` | **Opcional** — Secret file stub (pode ficar em branco). Destino: **Infisical** como secret manager; o arquivo Jenkins é só ponte até lá |
 | `proxmox-*-ssh` / `ec2-prd-01-ssh` | SSH por ambiente (ajuste os IDs reais) |
@@ -98,12 +97,11 @@ O checkbox “GitHub hook trigger for GITScm polling” **não** é o mecanismo 
 | Etapa | Detalhe |
 |-------|---------|
 | Maven | `./spring-boot/backend/pom.xml` → `clean package -DskipTests` (JAR `api-cadastros/target/app.jar`) |
-| Node | `frontend/gestao` → `pnpm install` + `pnpm build` (artefatos `dist/`, Prisma generate) |
-| Docker | `lodh8/starter-api-cadastros` (context `spring-boot`) e `lodh8/starter-webapp-gestao` (context `frontend/gestao`) |
+| Docker | Push para Artifact Keeper: `artifacts.lodh8.com/lodh8/starter-api-cadastros` (frontend fora do escopo por enquanto) |
 
 Tags de imagem vêm da Version API (`X.Y.Z-develop` / `X.Y.Z-staging` / `X.Y.Z` em production).
 
-Compose local (`spring-boot/docker-compose.yaml`) usa nomes sem namespace Docker Hub (`starter-api-cadastros:${VERSION}`); em runtime o Ansible deve puxar `lodh8/starter-*` (ou retag conforme o inventário).
+Compose local continua com nomes curtos (`starter-api-cadastros:${VERSION}`). Em deploy, o Ansible puxa de `artifacts.lodh8.com/lodh8/...`.
 
 ## Deploy
 

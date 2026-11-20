@@ -5,17 +5,16 @@ buildPipeline([
     projectAlias: 'starter',
     gitRepo: 'https://github.com/HerculanoLeo/java-hexagonal-architecture.git',
     gitCredential: 'github-herculano',
+    devopsCredentials: 'devops',
     discordWebhookUrl: 'https://discord.com/api/webhooks/REPLACE_ME',
     deployJob: 'lodh8/starter/deploy',
     buildAgent: 'worker',
+    dockerRegistry: 'https://artifacts.lodh8.com',
+    dockerCredential: 'devops',
     dockerImages: [
         'spring-boot/backend/api-cadastros/Dockerfile': [
-            image: 'lodh8/starter-api-cadastros',
+            image: 'artifacts.lodh8.com/lodh8/starter-api-cadastros',
             context: 'spring-boot',
-        ],
-        'frontend/gestao/Dockerfile': [
-            image: 'lodh8/starter-webapp-gestao',
-            context: 'frontend/gestao',
         ],
     ],
     mavenBuilds: [
@@ -24,15 +23,6 @@ buildPipeline([
             pomPath: './spring-boot/backend/pom.xml',
         ],
     ],
-    nodeBuilds: [
-        [
-            name: 'Gestão',
-            packageDir: './frontend/gestao',
-            commands: [
-                'pnpm install --frozen-lockfile --dir ./frontend/gestao',
-                'pnpm --dir ./frontend/gestao build',
-            ],
-        ],
-    ],
+    // Frontend (gestão) fora do escopo por enquanto.
     // autoDeployEnvs: ['staging'],
 ])
