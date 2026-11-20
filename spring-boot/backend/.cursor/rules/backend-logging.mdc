@@ -1,0 +1,55 @@
+---
+description: Logs estruturados INFO/DEBUG/WARN/ERROR com dados mascarados em operações
+alwaysApply: true
+---
+
+# Logging (backend)
+
+Padrão obrigatório em `*ServiceImpl`, `*Adapter` de integração e jobs/listeners.
+
+## Correlação (MDC)
+
+- Request HTTP: `LoggingMdcFilter` define `uid` (UUID do processo) e `usuario` (JWT `preferred_username` / `azp` / `sub` quando autenticado).
+- Pattern de log inclui `[%X{uid}]` — **não** repetir `uid=` em toda mensagem de negócio.
+- Jobs/cron sem request: `LogMdc.putUid(UUID...)` no início e `LogMdc.clear()` no `finally`.
+- Async (`applicationTaskExecutor`): MDC é copiado via `MdcTaskDecorator`.
+- `uid` é correlacionador público do processo — não é secret.
+- Respostas de erro HTTP 4xx/5xx (`ServerExceptionResponse` / field errors) incluem o campo JSON `uid` (mesmo valor do MDC).
+
+Utilitário: `com.lodh8.starter.shared.utils.LogMdc`.
+
+## Níveis
+
+| Nível | Quando |
+|-------|--------|
+| `debug` | Mesma mensagem do INFO com dados **abertos** (só com DEBUG ligado) |
+| `info` | Início, etapa relevante, fim/resultado — IDs **mascarados** via `IdentificadorLog.mascarar` |
+| `warn` | Guardrail, não encontrado, integração bloqueada |
+| `error` | Falha inesperada + throwable como último argumento |
+
+## Formato
+
+```
+contexto acao chave=valor chave2=valor2
+```
+
+Exemplos: `grupo findByIdentityId identityId=abc**yz resultado=ok`, `notificacao processar inicio total=12`.
+
+- `@Slf4j` (Lombok). Sem `System.out` / `LoggerFactory` ad-hoc.
+- Par INFO + DEBUG na mesma etapa quando houver identificador sensível (email, UUID, username, CEP, etc.).
+- Controllers: só warn/error de borda; detalhe no Service.
+
+## Proibido (qualquer nível)
+
+secret, password, token, Authorization, client_secret, corpo de credencial, refresh token.
+
+## Utilitário de máscara
+
+`com.lodh8.starter.shared.utils.IdentificadorLog#mascarar` — prefixo + `*` + sufixo; blank/null → `-`.
+
+## Checklist ao fechar feature
+
+1. Etapas da operação logadas (início / ramo / fim ou erro).
+2. INFO sem PII aberta; DEBUG espelha aberto quando fizer sentido.
+3. Nenhum secret no log.
+4. Job/cron sem request: `uid` no MDC no ciclo do job.

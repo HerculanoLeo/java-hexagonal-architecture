@@ -1,14 +1,14 @@
 package com.lodh8.starter.cadastros.infra.notification;
 
 import com.lodh8.starter.authorize.app.UsuarioAutenticadoService;
-import com.lodh8.starter.notification.app.port.usuario.NotificacaoUsuarioAtual;
-import com.lodh8.starter.notification.app.port.usuario.NotificacaoUsuarioAtualPort;
+import com.lodh8.starter.notificacao.app.NotificacaoUsuarioAtualService;
+import com.lodh8.starter.notificacao.domain.NotificacaoUsuarioAtual;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class NotificacaoUsuarioAtualAdapter implements NotificacaoUsuarioAtualPort {
+public class NotificacaoUsuarioAtualAdapter implements NotificacaoUsuarioAtualService {
 
     private final UsuarioAutenticadoService usuarioAutenticadoService;
 

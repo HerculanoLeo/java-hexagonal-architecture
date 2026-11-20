@@ -1,15 +1,17 @@
 package com.lodh8.starter.cadastros.infra.authorize;
 
-import com.lodh8.starter.authorize.app.port.UsuarioAutenticadoProviderPort;
+import com.lodh8.starter.authorize.app.UsuarioAutenticadoProviderService;
 import com.lodh8.starter.authorize.domain.GrupoAutenticado;
 import com.lodh8.starter.authorize.domain.OAuthUser;
 import com.lodh8.starter.authorize.domain.UsuarioAutenticado;
-import com.lodh8.starter.backoffice.usuarios.app.port.UsuarioSistemaRepositoryPort;
-import com.lodh8.starter.backoffice.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.identity.grupos.app.GrupoService;
+import com.lodh8.starter.plataforma.usuarios.app.UsuarioSistemaService;
+import com.lodh8.starter.plataforma.usuarios.domain.UsuarioSistema;
 import com.lodh8.starter.shared.models.enums.Status;
 import com.lodh8.starter.shared.models.enums.TipoAcesso;
+import com.lodh8.starter.shared.utils.IdentificadorLog;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -17,13 +19,14 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProviderPort {
+public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProviderService {
 
     protected static final String USER_CACHE_KEY = "authenticated-user-cache";
 
-    private final UsuarioSistemaRepositoryPort usuarioSistemaRepository;
+    private final UsuarioSistemaService usuarioSistemaService;
 
     private final GrupoService grupoService;
 
@@ -31,6 +34,11 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
 
     @Override
     public UsuarioAutenticado usuarioAutenticado(OAuthUser user) {
+        log.info(
+                "usuarioAutenticadoProvider usuarioAutenticado inicio userId={}",
+                IdentificadorLog.mascarar(user != null ? user.userId() : null)
+        );
+        log.debug("usuarioAutenticadoProvider usuarioAutenticado inicio userId={}", user != null ? user.userId() : null);
         var cache = cacheManager.getCache(USER_CACHE_KEY);
 
         var cacheKey = getCacheKey(user);
@@ -39,6 +47,7 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
             var authenticatedUserCache = cache.get(cacheKey, UsuarioAutenticado.class);
 
             if (null != authenticatedUserCache) {
+                log.info("usuarioAutenticadoProvider usuarioAutenticado fim origem=cache tipo={}", authenticatedUserCache.tipo());
                 return authenticatedUserCache;
             }
 
@@ -46,20 +55,28 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
 
             cache.put(cacheKey, authenticatedUser);
 
+            log.info("usuarioAutenticadoProvider usuarioAutenticado fim origem=provedor tipo={}", authenticatedUser.tipo());
             return authenticatedUser;
         }
 
-        return getUsuarioAutenticado(user);
+        var result = getUsuarioAutenticado(user);
+        log.info("usuarioAutenticadoProvider usuarioAutenticado fim origem=provedor tipo={}", result.tipo());
+        return result;
     }
 
     @Override
     public GrupoAutenticado grupo(OAuthUser user) {
-        return switch (user.type()) {
+        log.info(
+                "usuarioAutenticadoProvider grupo inicio userId={}",
+                IdentificadorLog.mascarar(user != null ? user.userId() : null)
+        );
+        log.debug("usuarioAutenticadoProvider grupo inicio userId={}", user != null ? user.userId() : null);
+        var grupo = switch (user.type()) {
             case USUARIO_SISTEMA -> this.grupoService.findByIdentityId(user.userId())
-                    .map(grupo -> new GrupoAutenticado(grupo.id(), grupo.nome(), grupo.roles()))
+                    .map(g -> new GrupoAutenticado(g.id(), g.nome(), g.roles()))
                     .orElseGet(() -> {
                         // Usuário principal sem grupo: flag main no banco local.
-                        var isMain = this.usuarioSistemaRepository.findByIdentityId(user.userId())
+                        var isMain = this.usuarioSistemaService.findByIdentityId(user.userId())
                                 .map(UsuarioSistema::main)
                                 .orElse(false);
                         if (isMain) {
@@ -73,11 +90,16 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
                     });
             case null, default -> null;
         };
+        log.info(
+                "usuarioAutenticadoProvider grupo fim resultado={}",
+                grupo != null ? "ok" : "ausente"
+        );
+        return grupo;
     }
 
     protected UsuarioAutenticado getUsuarioAutenticado(OAuthUser user) {
         return switch (user.type()) {
-            case USUARIO_SISTEMA -> usuarioSistemaRepository.findByIdentityId(user.userId())
+            case USUARIO_SISTEMA -> usuarioSistemaService.findByIdentityId(user.userId())
                     .map(usuario -> new UsuarioAutenticado(
                             usuario.id(),
                             usuario.identityId(),
@@ -104,13 +126,22 @@ public class UsuarioAutenticadoProviderAdapter implements UsuarioAutenticadoProv
 
     @Override
     public void atualizarNome(UUID usuarioId, String nome, OAuthUser oauthUser) {
-        usuarioSistemaRepository.updateNome(usuarioId, nome);
+        log.info(
+                "usuarioAutenticadoProvider atualizarNome inicio id={}",
+                IdentificadorLog.mascarar(usuarioId)
+        );
+        log.debug("usuarioAutenticadoProvider atualizarNome inicio id={}", usuarioId);
+        usuarioSistemaService.updateNome(usuarioId, nome);
 
         var cache = cacheManager.getCache(USER_CACHE_KEY);
         var cacheKey = getCacheKey(oauthUser);
         if (null != cache && StringUtils.isNotBlank(cacheKey)) {
             cache.evict(cacheKey);
         }
+        log.info(
+                "usuarioAutenticadoProvider atualizarNome fim id={}",
+                IdentificadorLog.mascarar(usuarioId)
+        );
     }
 
     protected String getCacheKey(OAuthUser oauthUser) {

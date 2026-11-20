@@ -1,6 +1,6 @@
 # java-hexagonal-architecture — Guia para Agentes
 
-Starter público de **painel administrativo SaaS** multi-usuário: backend Java (**Spring Boot 4.0.7** + Modulith 2.0) + frontend TanStack Start (BFF) + Keycloak.
+Starter público de **painel administrativo SaaS** multi-usuário: backend Java (**Spring Boot 4.2** + Modulith 2.2) + frontend TanStack Start (BFF) + Keycloak.
 
 > Repositório **anonimizado** (sem credenciais reais).
 
@@ -17,7 +17,7 @@ Starter público de **painel administrativo SaaS** multi-usuário: backend Java 
 ```
 spring-boot/
   backend/           # Maven multi-module (Spring Boot + Modulith)
-  dependencias/      # Keycloak realm + OpenTelemetry
+  dependencias/      # Keycloak + OpenTelemetry + Grafana + Postman collections
   docker-compose.yaml
 frontend/gestao/     # TanStack Start + Prisma (BFF)
 docs/domains/        # Documentação / specs por domínio
@@ -32,6 +32,8 @@ docs/domains/        # Documentação / specs por domínio
 | `backend-architecture.mdc` | Hexagonal, Modulith, convenções |
 | `backend-domains.mdc` | DDD, bounded contexts |
 | `backend-testing.mdc` | JUnit, JaCoCo |
+| `backend-logging.mdc` | INFO mascarado / DEBUG aberto, etapas |
+| `postman-collection.mdc` | Endpoint → Postman (`dependencias/collections/`) |
 
 ### Frontend (`frontend/gestao/.cursor/rules/`)
 

@@ -32,32 +32,32 @@
 
         <dependency>
             <groupId>com.lodh8.starter</groupId>
-            <artifactId>domain-identity</artifactId>
+            <artifactId>bc-identity</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.lodh8.starter</groupId>
-            <artifactId>domain-authorize</artifactId>
+            <artifactId>bc-authorize</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.lodh8.starter</groupId>
-            <artifactId>domain-backoffice</artifactId>
+            <artifactId>bc-plataforma</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.lodh8.starter</groupId>
-            <artifactId>domain-location</artifactId>
+            <artifactId>bc-localizacao</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.lodh8.starter</groupId>
-            <artifactId>domain-notification</artifactId>
+            <artifactId>bc-notificacao</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.lodh8.starter</groupId>
-            <artifactId>domain-security</artifactId>
+            <artifactId>bc-seguranca</artifactId>
         </dependency>
 
         <!-- DEPENDENCIAS -->
@@ -72,7 +72,6 @@
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-logback-appender-1.0</artifactId>
-            <version>2.21.0-alpha</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -209,7 +208,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.modulith</groupId>
-            <artifactId>spring-modulith-observability</artifactId>
+            <artifactId>spring-modulith-starter-insight</artifactId>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
@@ -241,6 +240,10 @@
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
+                        </path>
+                        <path>
+                            <groupId>com.herculanoleo</groupId>
+                            <artifactId>spring-mapper-enum-processor</artifactId>
                         </path>
                         <path>
                             <groupId>com.herculanoleo</groupId>

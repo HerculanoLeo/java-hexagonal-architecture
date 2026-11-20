@@ -1,0 +1,11 @@
+# Contexto: spring-boot/
+# docker build -f backend/api-cadastros/Dockerfile -t starter-api-cadastros .
+# Só o JAR pré-buildado (pais reabertos só para travessia).
+*
+!backend/
+backend/**
+!backend/api-cadastros/
+backend/api-cadastros/**
+!backend/api-cadastros/target/
+backend/api-cadastros/target/**
+!backend/api-cadastros/target/app.jar

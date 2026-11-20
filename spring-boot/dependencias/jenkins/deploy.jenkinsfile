@@ -1,0 +1,33 @@
+@Library('deploy-shared-library') _
+
+deployParameters(project: 'starter')
+
+// Stub opcional: Secret file em branco no Jenkins até o Infisical.
+// A shared library só injeta @SECRET_VARS_FILE se o ID existir; sem ele, o deploy segue.
+def envSecretsByEnvironment = [
+    develop: 'develop-env-secrets',
+    staging: 'staging-env-secrets',
+    production: 'production-env-secrets',
+]
+
+// IDs = servidor alvo (reutilizável entre projetos no mesmo host).
+def sshByEnvironment = [
+    develop: 'proxmox-dev-01-ssh',
+    staging: 'proxmox-hml-01-ssh',
+    production: 'ec2-prd-01-ssh',
+]
+
+deployAnsible(
+    project: params.PROJECT,
+    environment: params.DEPLOY_ENV,
+    imageVersion: params.IMAGE_VERSIONS,
+    deployAgent: 'worker',
+    ansibleRepositoryUrl: 'https://github.com/HerculanoLeo/deploy-ansible-pipelines.git',
+    ansibleRepositoryCredentialId: 'github-herculano',
+    sshCredentialId: sshByEnvironment[params.DEPLOY_ENV],
+    ansibleBecomeCredentialsId: 'pipeline',
+    registryCredentialId: 'dockerhub',
+    secretVarsCredentialId: envSecretsByEnvironment[params.DEPLOY_ENV],
+    sendDiscordNotification: params.SEND_DISCORD_NOTIFICATION,
+    discordWebhookUrl: 'https://discord.com/api/webhooks/REPLACE_ME',
+)

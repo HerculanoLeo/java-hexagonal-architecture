@@ -66,11 +66,11 @@ dist-ssr
 *.sw?
 
 yarn.lock
-packege-lock.json
+package-lock.json
 .env
 /logs
 /**/target/
 application-mail_*.yml
+application-dev.yml
 application-hml.yml
 application-prd.yml
-pnpm-lock.yaml

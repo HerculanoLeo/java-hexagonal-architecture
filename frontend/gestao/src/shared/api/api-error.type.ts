@@ -11,6 +11,8 @@ export type ApiErrorResponse = {
 	fieldErrors?: ApiFieldError[];
 	message?: string;
 	timestamp?: string;
+	/** Correlação com logs do backend (`LogMdc.uid`). */
+	uid?: string;
 };
 
 export class ApiHttpError extends Error {
