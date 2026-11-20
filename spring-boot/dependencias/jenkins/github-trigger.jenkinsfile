@@ -1,0 +1,11 @@
+@Library('github-trigger') _
+
+githubTrigger([
+    projectAlias: 'starter',
+    buildJob: 'lodh8/starter/build',
+    // triggers: [develop: false, staging: true, production: true],
+])
+
+// Generic Webhook Trigger (Jenkins UI):
+//   GIT_BRANCH_PUSH  <- $.ref          (lib remove refs/heads/ e refs/tags/)
+//   GIT_BRANCH_MERGE <- $.pull_request.base.ref
