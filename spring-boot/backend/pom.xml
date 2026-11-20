@@ -207,13 +207,18 @@
             <id>central</id>
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
+<!--        <repository>-->
+<!--            <id>github-spring-mapper-enum</id>-->
+<!--            <url>https://maven.pkg.github.com/HerculanoLeo/spring-mapper-enum</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>github-sentinel-flow</id>-->
+<!--            <url>https://maven.pkg.github.com/HerculanoLeo/sentinel-flow</url>-->
+<!--        </repository>-->
+        <!-- MAVEN REPO PESSOAL -->
         <repository>
-            <id>github-spring-mapper-enum</id>
-            <url>https://maven.pkg.github.com/HerculanoLeo/spring-mapper-enum</url>
-        </repository>
-        <repository>
-            <id>github-sentinel-flow</id>
-            <url>https://maven.pkg.github.com/HerculanoLeo/sentinel-flow</url>
+            <id>artifact</id>
+            <url>https://artifacts.lodh8.com/maven/maven-releases/</url>
         </repository>
     </repositories>
 
