@@ -14,6 +14,7 @@ Padrão obrigatório em `*ServiceImpl`, `*Adapter` de integração e jobs/listen
 - Jobs/cron sem request: `LogMdc.putUid(UUID...)` no início e `LogMdc.clear()` no `finally`.
 - Async (`applicationTaskExecutor`): MDC é copiado via `MdcTaskDecorator`.
 - `uid` é correlacionador público do processo — não é secret.
+- Respostas de erro HTTP 4xx/5xx (`ServerExceptionResponse` / field errors) incluem o campo JSON `uid` (mesmo valor do MDC).
 
 Utilitário: `com.lodh8.starter.shared.utils.LogMdc`.
 

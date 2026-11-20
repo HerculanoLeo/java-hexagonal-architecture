@@ -2,6 +2,7 @@ package com.lodh8.starter.cadastros.infra.configuration;
 
 import com.herculanoleo.sentinelflow.exceptions.ValidatorException;
 import com.lodh8.starter.shared.exceptions.*;
+import com.lodh8.starter.shared.utils.LogMdc;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -44,7 +45,12 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ServerFieldErrorsExceptionResponse> validator(ValidatorException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ServerFieldErrorsExceptionResponse(ex.getMessage(), OffsetDateTime.now(), ex.getFieldErrors()));
+                .body(new ServerFieldErrorsExceptionResponse(
+                        ex.getMessage(),
+                        OffsetDateTime.now(),
+                        ex.getFieldErrors(),
+                        LogMdc.uid()
+                ));
     }
 
     @ExceptionHandler({AccessDeniedException.class})
@@ -71,7 +77,7 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     private ResponseEntity<ServerExceptionResponse> buildResponseEntity(HttpStatus httpStatus, String message) {
         return ResponseEntity
                 .status(httpStatus)
-                .body(new ServerExceptionResponse(message, OffsetDateTime.now()));
+                .body(new ServerExceptionResponse(message, OffsetDateTime.now(), LogMdc.uid()));
     }
 
     private static <T extends Throwable> T findCause(Throwable throwable, Class<T> type) {

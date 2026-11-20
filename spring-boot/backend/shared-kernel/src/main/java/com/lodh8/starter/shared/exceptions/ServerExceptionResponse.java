@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 
 public record ServerExceptionResponse(
         @JsonProperty("message") String message,
-        @JsonProperty("timestamp") OffsetDateTime timestamp
+        @JsonProperty("timestamp") OffsetDateTime timestamp,
+        @JsonProperty("uid") String uid
 ) {
 }

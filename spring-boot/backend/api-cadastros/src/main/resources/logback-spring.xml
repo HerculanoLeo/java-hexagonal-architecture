@@ -2,7 +2,10 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender"/>
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <!-- Exporta MDC uid/usuario como atributos do log (filtro Grafana / Loki). -->
+        <captureMdcAttributes>uid,usuario</captureMdcAttributes>
+    </appender>
 
     <root level="INFO">
         <appender-ref ref="OTEL"/>

@@ -38,7 +38,7 @@
         "spec": {
           "id": 11,
           "title": "📜 Application Logs",
-          "description": "Logs da aplicação filtrados por nível. O campo Transaction ID filtra pelo uid da transação do starter-api-cadastros; vazio traz todas as linhas.",
+          "description": "Logs da aplicação filtrados por nível. O campo UID filtra pelo correlacionador de request (MDC uid / JSON de erro); vazio traz todas as linhas.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1861,7 +1861,7 @@
             "value": ""
           },
           "query": "",
-          "label": "Transaction ID",
+          "label": "UID",
           "hide": "dontHide",
           "skipUrlSync": false
         }

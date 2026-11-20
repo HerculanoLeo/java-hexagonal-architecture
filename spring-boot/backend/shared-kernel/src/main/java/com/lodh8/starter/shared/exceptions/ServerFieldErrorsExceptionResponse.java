@@ -9,6 +9,7 @@ import java.util.Collection;
 public record ServerFieldErrorsExceptionResponse(
         @JsonProperty("message") String message,
         @JsonProperty("timestamp") OffsetDateTime timestamp,
-        @JsonProperty("errors") Collection<ValidatorFieldErrorMessages> fieldErrors
+        @JsonProperty("errors") Collection<ValidatorFieldErrorMessages> fieldErrors,
+        @JsonProperty("uid") String uid
 ) {
 }
