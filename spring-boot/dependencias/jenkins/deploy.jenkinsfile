@@ -22,7 +22,7 @@ deployAnsible(
     environment: params.DEPLOY_ENV,
     imageVersion: params.IMAGE_VERSIONS,
     deployAgent: 'worker',
-    ansibleRepositoryUrl: 'https://github.com/HerculanoLeo/deploy-ansible-pipelines.git',
+    ansibleRepositoryUrl: 'https://github.com/HerculanoLeo/jenkins-ansible-pipelines.git',
     ansibleRepositoryCredentialId: 'github-herculano',
     sshCredentialId: sshByEnvironment[params.DEPLOY_ENV],
     ansibleBecomeCredentialsId: 'devops',

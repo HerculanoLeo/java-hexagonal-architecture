@@ -3365,7 +3365,7 @@
       "java-25",
       "spring-boot",
       "infrastructure",
-      "carros"
+      "starter"
     ],
     "timeSettings": {
       "timezone": "browser",
@@ -3413,10 +3413,10 @@
         "kind": "CustomVariable",
         "spec": {
           "name": "namespace",
-          "query": "carros",
+          "query": "starter",
           "current": {
-            "text": "carros",
-            "value": "carros"
+            "text": "starter",
+            "value": "starter"
           },
           "options": [],
           "multi": false,

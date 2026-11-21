@@ -40,7 +40,7 @@ Requer o appender OTEL com `captureMdcAttributes=uid,usuario` (`logback-spring.x
 
 1. Configure `GRAFANA_CLOUD_*` no `.env` do Compose.
 2. **Dashboards → New → Import** → upload de cada JSON.
-3. Remapeie datasources para a stack (`grafanacloud-prom` / `grafanacloud-logs` / `grafanacloud-traces` ou equivalentes).
+3. Remapeie datasources para a stack (`grafanacloud-herculanoleo-prom` / `grafanacloud-herculanoleo-logs` / `grafanacloud-herculanoleo-traces` ou equivalentes).
 4. Ajuste variáveis `namespace` / `application` / `environment` se necessário.
 
 ## Collector

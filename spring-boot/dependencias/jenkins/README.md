@@ -6,7 +6,7 @@ Scripts de Pipeline do projeto **starter**, executados pelas shared libraries Je
 GitHub webhook
   → job trigger  (github-trigger.jenkinsfile)
   → job build    (build.jenkinsfile)
-  → job deploy   (deploy.jenkinsfile)  → ansible-pipelines
+  → job deploy   (deploy.jenkinsfile)  → ansible-deploy-pipelines
 ```
 
 ## Arquivos
@@ -39,9 +39,9 @@ Agents: label `worker` (build e deploy). O `github-trigger` continua em `agent a
 
 Registrar o alias `starter` por ambiente (`develop`, `staging`, `production`) antes da primeira build. A lib busca/atualiza semver em `{versionApiUri}/version/starter/{env}`.
 
-### deploy-ansible-pipelines (GitHub)
+### ansible-deploy-pipelines (GitHub)
 
-O deploy faz checkout de `https://github.com/HerculanoLeo/deploy-ansible-pipelines.git` com a credencial `github-herculano`. É necessário existir:
+O deploy faz checkout de `https://github.com/HerculanoLeo/ansible-deploy-pipelines.git` com a credencial `github-herculano`. É necessário existir:
 
 - `ansible/ansible.cfg`
 - `ansible/playbooks/deploy.yml`
@@ -54,7 +54,7 @@ O deploy faz checkout de `https://github.com/HerculanoLeo/deploy-ansible-pipelin
 
 | ID | Uso |
 |----|-----|
-| `github-herculano` | Checkout da app, shared libraries e `deploy-ansible-pipelines` (GitHub App). Em **Avançado**, use *Specify accessible repositories* com Owner `HerculanoLeo` — *Infer accessible repository* **quebra** o load de Pipeline Libraries |
+| `github-herculano` | Checkout da app, shared libraries e `ansible-deploy-pipelines` (GitHub App). Em **Avançado**, use *Specify accessible repositories* com Owner `HerculanoLeo` — *Infer accessible repository* **quebra** o load de Pipeline Libraries |
 | `devops` | Auth HTTP da Version API (`httpRequest`) + become Ansible |
 | `artifacts-keeper` | Username/password do Artifact Keeper (`artifacts.lodh8.com`) — push no build e pull no deploy |
 | `pipeline-maven-settings` | Config File Provider — `settings.xml` (GitHub Packages / deps privadas) |
