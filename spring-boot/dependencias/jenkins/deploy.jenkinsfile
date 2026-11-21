@@ -25,7 +25,7 @@ deployAnsible(
     ansibleRepositoryUrl: 'https://github.com/HerculanoLeo/jenkins-ansible-pipelines.git',
     ansibleRepositoryCredentialId: 'github-herculano',
     sshCredentialId: sshByEnvironment[params.DEPLOY_ENV],
-    ansibleBecomeCredentialsId: 'devops',
+    // become opcional: VMs com sudo NOPASSWD — omitir ate haver senha no sudoers
     registryCredentialId: 'devops',
     secretVarsCredentialId: envSecretsByEnvironment[params.DEPLOY_ENV],
     sendDiscordNotification: params.SEND_DISCORD_NOTIFICATION,

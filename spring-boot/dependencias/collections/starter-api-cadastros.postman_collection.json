@@ -1170,6 +1170,38 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Actuator",
+      "item": [
+        {
+          "name": "health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            },
+            "description": "Health check público (`permitAll`). Esperado: HTTP 200 com `{\"status\":\"UP\"}`."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

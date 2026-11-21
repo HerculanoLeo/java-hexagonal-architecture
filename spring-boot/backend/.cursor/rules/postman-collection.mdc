@@ -17,7 +17,8 @@ Todo endpoint HTTP novo ou alterado em `api-cadastros` / BCs entra na collection
 - Nomes no Postman: collection **`api`**, environment **`local`**.
 - Base URL: `{{baseUrl}}` (= `http://localhost:8080/api/v1` no environment local).
 - Auth da collection: **OAuth 2.0 Authorization Code + PKCE** (`useBrowser`, `auto_refresh_token`), client `webapp` (secret + `offline_access`).
-- Pastas por bounded context / área: `Auth`, `Plataforma`, `Localizacao`, `Notificacao`, `Seguranca`.
+- Pastas por bounded context / área: `Auth`, `Plataforma`, `Localizacao`, `Notificacao`, `Seguranca`, `Actuator`.
+- `Actuator/health`: `GET {{baseUrl}}/actuator/health` com auth `noauth` (endpoint público).
 - Request body e query params devem refletir os DTOs reais (`*Request`, `*DTO`).
 - Variável nova (path id, filtros, etc.) entra no environment local, com valor dummy/anonimizado.
 - Não versionar secrets reais; `client_secret` só placeholder.

@@ -6,8 +6,8 @@ COPY backend/api-cadastros/target/app.jar /servers/docker/app/runtime/app.jar
 
 WORKDIR /servers/docker/app/runtime/
 
-HEALTHCHECK --interval=1m --timeout=15s --retries=5 \
-    CMD curl --fail http://localhost:8080/api/v1/actuator/health | grep UP || exit 1
+HEALTHCHECK --interval=1m --timeout=15s --start-period=90s --retries=5 \
+    CMD curl --fail http://127.0.0.1:8080/api/v1/actuator/health | grep UP || exit 1
 
 EXPOSE 8080
 

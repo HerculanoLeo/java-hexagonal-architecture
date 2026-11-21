@@ -55,7 +55,7 @@ O deploy faz checkout de `https://github.com/HerculanoLeo/ansible-deploy-pipelin
 | ID | Uso |
 |----|-----|
 | `github-herculano` | Checkout da app, shared libraries e `ansible-deploy-pipelines` (GitHub App). Em **Avançado**, use *Specify accessible repositories* com Owner `HerculanoLeo` — *Infer accessible repository* **quebra** o load de Pipeline Libraries |
-| `devops` | Auth HTTP da Version API (`httpRequest`) + become Ansible |
+| `devops` | Auth HTTP da Version API (`httpRequest`) + registry Docker no deploy |
 | `artifacts-keeper` | Username/password do Artifact Keeper (`artifacts.lodh8.com`) — push no build e pull no deploy |
 | `pipeline-maven-settings` | Config File Provider — `settings.xml` (GitHub Packages / deps privadas) |
 | `develop-env-secrets` / `staging-env-secrets` / `production-env-secrets` | **Opcional** — Secret file stub (pode ficar em branco). Destino: **Infisical** como secret manager; o arquivo Jenkins é só ponte até lá |
@@ -108,3 +108,5 @@ Compose local continua com nomes curtos (`starter-api-cadastros:${VERSION}`). Em
 Último elo do fluxo. Com `autoDeployEnvs` (default da lib: `staging`), a build dispara o job `deploy` automaticamente após push bem-sucedido nesse ambiente. Deploy manual: rode `starter/deploy` com `DEPLOY_ENV` e `IMAGE_VERSIONS`.
 
 Antes do primeiro deploy: SSH por ambiente e, se quiser manter o stub, Secret files vazios (`develop-env-secrets`, etc.). Secrets reais virão do Infisical.
+
+`ansibleBecomeCredentialsId` / become é **opcional**. Com sudo `NOPASSWD` no host (caso atual das VMs), omita o parâmetro. Se informar o ID e a senha vier vazia, a shared library segue sem `--become-password-file`.
