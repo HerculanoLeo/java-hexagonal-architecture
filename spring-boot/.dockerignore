@@ -6,6 +6,7 @@
 backend/**
 !backend/api-cadastros/
 backend/api-cadastros/**
+!backend/api-cadastros/docker-entrypoint.sh
 !backend/api-cadastros/target/
 backend/api-cadastros/target/**
 !backend/api-cadastros/target/app.jar
