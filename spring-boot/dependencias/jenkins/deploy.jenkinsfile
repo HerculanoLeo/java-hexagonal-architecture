@@ -2,8 +2,8 @@
 
 deployParameters(project: 'starter')
 
-// Stub opcional: Secret file em branco no Jenkins até o Infisical.
-// A shared library só injeta @SECRET_VARS_FILE se o ID existir; sem ele, o deploy segue.
+// Secret file: bootstrap OpenBao AppRole (openbao_approle_creds). Sem secrets de runtime.
+// Contrato: jenkins-ansible-pipelines/ansible/projects/starter/env-secrets.example.yml
 def envSecretsByEnvironment = [
     develop: 'develop-env-secrets',
     staging: 'staging-env-secrets',

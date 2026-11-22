@@ -9,6 +9,7 @@ Starter público de **painel administrativo SaaS** multi-usuário: backend Java 
 | Recurso | Descrição |
 |---------|-----------|
 | [**Catálogo de domínios**](docs/domains/README.md) | **Referência principal** — subdomínios, paths no código, regras, roadmap |
+| [**Infisical / secrets**](docs/infisical/README.md) | Decisão secret manager (OSS, limites, alternativas, OpenBao paralelo, homelab) |
 | [Backend AGENTS.md](spring-boot/backend/AGENTS.md) | API Java, Modulith, endpoints |
 | [Frontend rules](frontend/gestao/.cursor/rules/) | FSD, UI, entity slices |
 
@@ -21,6 +22,7 @@ spring-boot/
   docker-compose.yaml
 frontend/gestao/     # TanStack Start + Prisma (BFF)
 docs/domains/        # Documentação / specs por domínio
+docs/infisical/      # Secret manager (Infisical + OpenBao paralelo)
 ```
 
 ## Cursor rules
