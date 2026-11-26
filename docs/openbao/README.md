@@ -40,10 +40,9 @@ Checklist para integrar este projeto a um OpenBao real:
 2. **AppRole** (ou auth equivalente) com policy de **read** só nesse path; `role_id` + `secret_id` disponíveis no container.
 3. **Montagem bootstrap** no container:
    - `/openbao/agent.hcl`, `/openbao/role_id`, `/openbao/secret_id` (tipicamente `:ro` a partir do host).
-4. **`agent.hcl` em modo ficheiro** (não só `env_template`):
+4. **`agent.hcl` em modo ficheiro** (`template { }` apenas — o Agent **não** permite misturar `template` com `exec`/`env_template`):
    - template → `/run/openbao/config/application-runtime.properties` (`KEY=value` a partir do KV);
-   - `exec` = `java -jar app.jar`;
-   - `restart_on_secret_changes = "never"` (o reload é do Spring, não do processo).
+   - **sem** bloco `exec` — o `docker-entrypoint.sh` sobe `bao agent` em background, espera o `.properties` e faz `exec java -jar`.
 5. **tmpfs** (ou volume RW efémero) em `/run/openbao` para o Agent gravar config/certs — separado do `/openbao` de bootstrap.
 6. **Lista de keys** alinhada ao que a app lê (DB, Keycloak, CORS, mail, flags de notificação, OTEL app, …). Novas keys = KV + lista do Agent + placeholder/`application.yml` se necessário.
 7. **Certificados (opcional):** entradas `file_templates` no Agent (`kv_key` + `destination` absoluto sob `/run/openbao` + `encoding` raw/base64); a app referencia o path via property.
