@@ -15,6 +15,6 @@ public class OAuthUserSingletonProviderAdapter implements OauthUserProviderPort 
 
     @Override
     public OAuthUser oauthUser() {
-        return new OAuthUser(attributes.clientId(), attributes.realm(), TipoAcesso.CLIENTE_SISTEMA);
+        return new OAuthUser(attributes.getClientId(), attributes.getRealm(), TipoAcesso.CLIENTE_SISTEMA);
     }
 }

@@ -3,6 +3,7 @@ package com.lodh8.starter.cadastros.infra.configuration.security;
 import com.lodh8.starter.cadastros.infra.attributes.WebAttributes;
 import com.lodh8.starter.cadastros.infra.logging.LoggingMdcFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -46,6 +47,7 @@ public class SecurityConfiguration {
                                         "/v3/api-docs/*",
                                         "/actuator/health"
                                 ).permitAll()
+                                .requestMatchers("/actuator/refresh").hasAuthority("admin-sistemas")
                                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                                 .anyRequest().authenticated()
                 )
@@ -62,6 +64,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    @RefreshScope
     public CorsConfiguration corsConfiguration(WebAttributes attributes) {
         var cors = new CorsConfiguration();
         cors.setAllowCredentials(true);

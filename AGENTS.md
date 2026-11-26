@@ -9,7 +9,7 @@ Starter público de **painel administrativo SaaS** multi-usuário: backend Java 
 | Recurso | Descrição |
 |---------|-----------|
 | [**Catálogo de domínios**](docs/domains/README.md) | **Referência principal** — subdomínios, paths no código, regras, roadmap |
-| [**OpenBao / secrets**](docs/openbao/README.md) | Secret manager (OpenBao + AppRole; IaC em homelab-iac) |
+| [**OpenBao / secrets**](docs/openbao/README.md) | Integração OpenBao Agent + live reload |
 | [Backend AGENTS.md](spring-boot/backend/AGENTS.md) | API Java, Modulith, endpoints |
 | [Frontend rules](frontend/gestao/.cursor/rules/) | FSD, UI, entity slices |
 

@@ -21,7 +21,7 @@ public class SistemaRedirectActionAdapter implements SistemaRedirectActionPort {
     @Override
     public RedirectAction getRedirectAction() {
         log.info("sistemaRedirect getRedirectAction inicio");
-        var action = new RedirectAction(keycloakAttributes.clientIdUsers(), sistemaAttributes.redirectUri());
+        var action = new RedirectAction(keycloakAttributes.getClientIdUsers(), sistemaAttributes.getRedirectUri());
         log.debug(
                 "sistemaRedirect getRedirectAction fim clientId={} redirectUri={}",
                 action.clientId(),

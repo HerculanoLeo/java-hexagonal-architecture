@@ -165,7 +165,7 @@ public class AuthenticationManagerDecorator implements AuthenticationManager {
         var jwt = jwtDecoder.decode(token);
 
         var userInfo = this.getUserInfo(jwt);
-        var roles = roles(userInfo, attributes.roleMapKeys());
+        var roles = roles(userInfo, attributes.getRoleMapKeys());
         var details = oauthUserDetails(userInfo, objectMapper);
 
         return new OAuthUser(

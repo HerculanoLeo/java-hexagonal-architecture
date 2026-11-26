@@ -161,7 +161,7 @@ public class UsuarioKeycloakAdapter implements UsuarioProviderPort {
         var representation = userResource.toRepresentation();
 
         if (!this.validateCredential(new TokenRequest(
-                keycloakAttributes.clientIdUsers(),
+                keycloakAttributes.getClientIdUsers(),
                 representation.getUsername(),
                 requestEntity.senhaAtual(),
                 null,

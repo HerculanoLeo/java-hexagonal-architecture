@@ -27,8 +27,8 @@ class OAuthUserSingletonProviderAdapterTest {
         // Arrange
         String expectedClientId = "system-client";
         String expectedRealm = "system-realm";
-        when(attributes.clientId()).thenReturn(expectedClientId);
-        when(attributes.realm()).thenReturn(expectedRealm);
+        when(attributes.getClientId()).thenReturn(expectedClientId);
+        when(attributes.getRealm()).thenReturn(expectedRealm);
 
         // Act
         OAuthUser result = adapter.oauthUser();

@@ -58,7 +58,7 @@ O deploy faz checkout de `https://github.com/HerculanoLeo/ansible-deploy-pipelin
 | `devops` | Auth HTTP da Version API (`httpRequest`) + registry Docker no deploy |
 | `artifacts-keeper` | Username/password do Artifact Keeper (`artifacts.lodh8.com`) — push no build e pull no deploy |
 | `pipeline-maven-settings` | Config File Provider — `settings.xml` (GitHub Packages / deps privadas) |
-| `develop-env-secrets` / `staging-env-secrets` / `production-env-secrets` | Secret file com bootstrap **OpenBao** AppRole (`openbao_approle_creds`); secrets de runtime vêm do KV, não deste arquivo |
+| `develop-env-secrets` / `staging-env-secrets` / `production-env-secrets` | Secret file com bootstrap **OpenBao** AppRole (`openbao_approle_creds`); config/secrets de runtime vêm do KV (via Agent), não deste arquivo |
 | `proxmox-*-ssh` / `ec2-prd-01-ssh` | SSH por ambiente (ajuste os IDs reais) |
 
 Substitua `REPLACE_ME` nos webhooks Discord de build e deploy.

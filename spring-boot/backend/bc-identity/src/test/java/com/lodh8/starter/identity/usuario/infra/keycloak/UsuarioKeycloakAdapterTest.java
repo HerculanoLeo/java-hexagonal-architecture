@@ -379,7 +379,7 @@ class UsuarioKeycloakAdapterTest {
         when(this.usersResource.get(userId)).thenReturn(this.userResource);
         when(this.userResource.toRepresentation()).thenReturn(this.userRepresentation);
 
-        when(this.keycloakAttributes.clientIdUsers()).thenReturn(clientId);
+        when(this.keycloakAttributes.getClientIdUsers()).thenReturn(clientId);
 
         OAuthTokenResponse mockTokenResponse = mock(OAuthTokenResponse.class);
         when(mockTokenResponse.getAccessToken()).thenReturn(accessToken);
@@ -419,7 +419,7 @@ class UsuarioKeycloakAdapterTest {
         when(this.usersResource.get(userId)).thenReturn(this.userResource);
         when(this.userResource.toRepresentation()).thenReturn(this.userRepresentation);
 
-        when(this.keycloakAttributes.clientIdUsers()).thenReturn(clientId);
+        when(this.keycloakAttributes.getClientIdUsers()).thenReturn(clientId);
 
         when(this.keycloakAuthClient.token(any(TokenRequest.class)))
                 .thenThrow(new RuntimeException("Simulated auth failure"));

@@ -33,8 +33,8 @@ class SistemaRedirectActionAdapterTest {
         String expectedClientId = "test-client-id";
         String expectedRedirectUri = "http://test.com/redirect";
 
-        when(keycloakAttributes.clientIdUsers()).thenReturn(expectedClientId);
-        when(sistemaAttributes.redirectUri()).thenReturn(expectedRedirectUri);
+        when(keycloakAttributes.getClientIdUsers()).thenReturn(expectedClientId);
+        when(sistemaAttributes.getRedirectUri()).thenReturn(expectedRedirectUri);
 
         RedirectAction result = adapter.getRedirectAction();
 

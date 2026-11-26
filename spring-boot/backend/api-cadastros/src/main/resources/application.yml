@@ -8,6 +8,8 @@ spring:
     name: starter-api-cadastros
   profiles:
     active: ${ENVIRONMENT:local}
+  config:
+    import: optional:file:/run/openbao/config/application-runtime.properties
   threads:
     virtual:
       enabled: true
@@ -33,6 +35,8 @@ spring:
           issuer-uri: ${api.oauth.keycloak.url}/realms/${api.oauth.keycloak.realm}
           jwk-set-uri: ${api.oauth.keycloak.url}/realms/${api.oauth.keycloak.realm}/protocol/openid-connect/certs
   cloud:
+    config:
+      enabled: false
     openfeign:
       lazy-attributes-resolution: true
   freemarker:
@@ -105,6 +109,9 @@ management:
 springdoc:
   swagger-ui:
     path: /openapi/swagger-ui
+
+openbao:
+  runtime-dir: ${OPENBAO_RUNTIME_DIR:/run/openbao}
 
 api:
   web:

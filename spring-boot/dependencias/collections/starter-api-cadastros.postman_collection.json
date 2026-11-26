@@ -1200,6 +1200,30 @@
             "description": "Health check público (`permitAll`). Esperado: HTTP 200 com `{\"status\":\"UP\"}`."
           },
           "response": []
+        },
+        {
+          "name": "refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "refresh"
+              ]
+            },
+            "description": "Refresh de config runtime (Modelo C). Requer JWT com authority `admin-sistemas`. Caminho feliz em deploy: FileWatcher no tmpfs OpenBao; este endpoint é fallback manual."
+          },
+          "response": []
         }
       ]
     }

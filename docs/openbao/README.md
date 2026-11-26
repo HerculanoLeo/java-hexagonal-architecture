@@ -1,35 +1,63 @@
-# OpenBao — secret manager
+# OpenBao — integração
 
-**Escolha do starter:** [OpenBao](https://openbao.org/) (fork OSS do Vault, MPL-2.0, OpenSSF) é o source of truth de secrets em runtime.
+Este starter usa **[OpenBao](https://openbao.org/)** (API compatível com Vault) como source of truth de **config runtime + secrets**. A API (`api-cadastros`) sobe atrás do **OpenBao Agent**: o Agent autentica (AppRole), materializa um ficheiro de propriedades e só então executa o JAR. Alterações no KV atualizam o ficheiro; o Spring faz **live reload** sem reiniciar o container.
 
-Provisionamento: repositório [`homelab-iac`](https://github.com/HerculanoLeo/homelab-iac) — VM `homelab-openbao` (`10.0.1.23`), role Ansible `openbao`, FQDN `openbao.lodh8.com`.
+Motivos principais:
 
-## Por quê
+- Secrets e configs tunáveis **não** ficam no `.env` / imagem.
+- Live reload (flags, URLs, passwords, mail, etc.) via ficheiro + `ContextRefresher`.
+- Certificados (PFX/PEM) podem ser renderizados no mesmo volume tmpfs, sob demanda.
 
-- Licença **MPL-2.0** (OSI); ACL/OIDC/policies sem paywall de custom roles.
-- Modelo B: AppRole + Agent — secrets de runtime **não** ficam no `.env` versionado/Jenkins.
-- Paths: `secret/<projeto>/<app>/<env>`.
+Perfil `local` continua sem OpenBao (`application-local.yml`).
 
-## Stack lab
+## O que este repositório já faz
+
+| Peça | Onde |
+|------|------|
+| Imagem com CLI `bao` + entrypoint | `spring-boot/backend/api-cadastros/Dockerfile`, `docker-entrypoint.sh` — se existir `/openbao/agent.hcl`, PID 1 = `bao agent` |
+| Import do ficheiro runtime | `application.yml` → `spring.config.import=optional:file:/run/openbao/config/application-runtime.properties` |
+| Watcher + refresh | `OpenBaoRuntimeConfigWatcher` → `ContextRefresher` |
+| Beans recriáveis | DataSource, JavaMailSender, cliente Keycloak admin, CORS (`@RefreshScope`) |
+| Refresh manual | `POST /api/v1/actuator/refresh` — authority `admin-sistemas` (`/actuator/health` continua público) |
+| Placeholders Spring | `${CADASTROS_*}`, `${KEYCLOAK_*}`, `SPRING_MAIL_*`, etc. — preenchidos pelas keys do ficheiro |
+
+Fluxo em runtime:
 
 ```text
-Laptop → Pi-hole DNS (openbao.<domínio>)
-           → Nginx TLS (Pi) → VM OpenBao :8200
-                └─ Raft em /opt/homelab/openbao/data
+KV (keys flat)
+  → OpenBao Agent (AppRole; PID 1)
+      → /run/openbao/config/application-runtime.properties
+      → (opcional) /run/openbao/certs/...
+      → exec java -jar
+  → Spring importa o .properties + FileWatcher → refresh in-process
 ```
 
-| Item | Valor |
-|------|--------|
-| Hostname / IP / VMID | `homelab-openbao` / `10.0.1.23` / `203` |
-| Seal | `static` + chave no `vault.yml` Ansible (gitignored) |
-| KV | v2 em `secret/` |
-| Auth UI | OIDC Keycloak + RBAC Identity Groups |
-| Machine identity | AppRole (`<project>-<service>-<env>`) |
+## O que a infra / deploy precisa fornecer
 
-## Fluxo com o starter
+Checklist para integrar este projeto a um OpenBao real:
 
-1. Seed KV em `homelab-iac` → `ansible/inventory/group_vars/proxmox_openbao/kv_starter.yml`.
-2. Deploy via [`jenkins-ansible-pipelines`](https://github.com/HerculanoLeo/jenkins-ansible-pipelines): Agent monta `/openbao`; compose usa imagem `lodh8/otel-collector` com Bao Agent quando há `agent.hcl`.
-3. Jenkins Secret file (`develop-env-secrets`, …) só carrega **bootstrap** AppRole (`openbao_approle_creds`), não passwords de app.
+1. **KV v2** com path por app/ambiente, por exemplo `secret/<projeto>/<app>/<env>`, **mapa flat** de keys (mesmos nomes que os placeholders Spring).
+2. **AppRole** (ou auth equivalente) com policy de **read** só nesse path; `role_id` + `secret_id` disponíveis no container.
+3. **Montagem bootstrap** no container:
+   - `/openbao/agent.hcl`, `/openbao/role_id`, `/openbao/secret_id` (tipicamente `:ro` a partir do host).
+4. **`agent.hcl` em modo ficheiro** (não só `env_template`):
+   - template → `/run/openbao/config/application-runtime.properties` (`KEY=value` a partir do KV);
+   - `exec` = `java -jar app.jar`;
+   - `restart_on_secret_changes = "never"` (o reload é do Spring, não do processo).
+5. **tmpfs** (ou volume RW efémero) em `/run/openbao` para o Agent gravar config/certs — separado do `/openbao` de bootstrap.
+6. **Lista de keys** alinhada ao que a app lê (DB, Keycloak, CORS, mail, flags de notificação, OTEL app, …). Novas keys = KV + lista do Agent + placeholder/`application.yml` se necessário.
+7. **Certificados (opcional):** entradas `file_templates` no Agent (`kv_key` + `destination` absoluto sob `/run/openbao` + `encoding` raw/base64); a app referencia o path via property.
 
-Detalhes operacionais: README / `docs/secrets` do `homelab-iac`. Deploy: `docs/projetos/starter` no repo ansible-pipelines.
+Sem esses passos, o entrypoint cai no `java -jar` direto (útil em local) e o watcher não arranca se `/run/openbao` não existir.
+
+## Contrato das keys
+
+- Preferir **keys flat** no mesmo objeto KV (ex.: `CADASTROS_DB_PASSWORD`, `KEYCLOAK_HOST`), não um blob YAML único.
+- O Agent gera `application-runtime.properties`; o Spring resolve `${…}` em `application.yml`.
+- Não colocar passwords no Compose `.env` quando o Agent estiver ativo — só plumbing de deploy (nome do serviço OTEL, paths de volume, etc.).
+
+## Limites neste starter
+
+- Collector OTEL / sidecars que ainda usem `env_template` + restart do processo.
+- Frontend (BFF) — secrets próprios; fora deste corte.
+- Mudanças que exigem redeploy: `server.port`, `context-path`, imagem, changelogs Liquibase (só no boot).

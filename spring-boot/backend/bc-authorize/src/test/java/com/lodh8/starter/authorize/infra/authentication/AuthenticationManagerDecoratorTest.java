@@ -69,7 +69,7 @@ class AuthenticationManagerDecoratorTest {
     @Test
     void authenticate_withBearerToken_shouldDecorateToken() {
         when(jwtDecoder.decode(anyString())).thenReturn(mockJwt);
-        when(attributes.roleMapKeys()).thenReturn(new String[]{"realm_access"});
+        when(attributes.getRoleMapKeys()).thenReturn(new String[]{"realm_access"});
 
         BearerTokenAuthenticationToken bearerToken = new BearerTokenAuthenticationToken("mock-token");
         Authentication result = authManager.authenticate(bearerToken);
@@ -83,7 +83,7 @@ class AuthenticationManagerDecoratorTest {
     @Test
     void authenticate_withOAuth2Token_shouldDecorateToken() {
         when(jwtDecoder.decode(anyString())).thenReturn(mockJwt);
-        when(attributes.roleMapKeys()).thenReturn(new String[]{"realm_access"});
+        when(attributes.getRoleMapKeys()).thenReturn(new String[]{"realm_access"});
 
         OAuth2AuthenticationToken oauthToken = new OAuth2AuthenticationToken(mockOidcUser, Collections.emptyList(), "test-reg-id");
         Authentication result = authManager.authenticate(oauthToken);
@@ -197,7 +197,7 @@ class AuthenticationManagerDecoratorTest {
         doReturn(mockUserInfo).when(spyManager).getUserInfo(mockJwt);
         doReturn(mockRoles).when(spyManager).roles(mockUserInfo, null);
         doReturn(mockDetails).when(spyManager).oauthUserDetails(mockUserInfo, objectMapper);
-        when(attributes.roleMapKeys()).thenReturn(null); // to isolate roles call
+        when(attributes.getRoleMapKeys()).thenReturn(null); // to isolate roles call
 
         OAuthUser result = spyManager.oauthUser("test-token", null);
 
@@ -215,7 +215,7 @@ class AuthenticationManagerDecoratorTest {
     @Test
     void authenticate_withLogoutUri_andBearerToken_shouldDecorateToken() {
         when(jwtDecoder.decode(anyString())).thenReturn(mockJwt);
-        when(attributes.roleMapKeys()).thenReturn(new String[]{"realm_access"});
+        when(attributes.getRoleMapKeys()).thenReturn(new String[]{"realm_access"});
         String logoutUri = "http://logout.com";
 
         BearerTokenAuthenticationToken bearerToken = new BearerTokenAuthenticationToken("mock-token");
@@ -233,7 +233,7 @@ class AuthenticationManagerDecoratorTest {
     @Test
     void authenticate_withLogoutUri_andOAuth2Token_shouldDecorateToken() {
         when(jwtDecoder.decode(anyString())).thenReturn(mockJwt);
-        when(attributes.roleMapKeys()).thenReturn(new String[]{"realm_access"});
+        when(attributes.getRoleMapKeys()).thenReturn(new String[]{"realm_access"});
         String logoutUri = "http://logout.com";
 
         OAuth2AuthenticationToken oauthToken = new OAuth2AuthenticationToken(mockOidcUser, Collections.emptyList(), "test-reg-id");
