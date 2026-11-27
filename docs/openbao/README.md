@@ -18,7 +18,7 @@ Perfil `local` continua sem OpenBao (`application-local.yml`).
 | Import do YAML runtime | `spring.config.import=optional:file:…/application-runtime.yml` + `OpenBaoRuntimeEnvironmentPostProcessor` (`YamlPropertySourceLoader`) |
 | Watcher + refresh | `OpenBaoRuntimeConfigWatcher` → `ContextRefresher` |
 | Beans recriáveis | DataSource, JavaMailSender, cliente Keycloak admin, CORS (`@RefreshScope`) |
-| Refresh manual | `POST /api/v1/actuator/refresh` — authority `admin-sistemas` (`/actuator/health` continua público) |
+| Refresh manual | `POST /api/v1/actuator/refresh` — authority `admin-sistemas` (`/actuator/health` continua público); só relê o YAML local (não puxa do OpenBao) |
 
 Fluxo em runtime:
 
@@ -30,6 +30,9 @@ KV (keys flat)
   → entrypoint espera o YAML, depois java -jar
   → Spring importa o YAML + FileWatcher → refresh in-process
 ```
+
+KV v2 é *static secret*: o Agent **não** recebe evento no write — re-lê no `static_secret_render_interval` (no deploy tipicamente `30s`; default upstream `5m`). O Spring só reage quando o ficheiro no tmpfs muda.
+
 
 ## O que a infra / deploy precisa fornecer
 
