@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Observa o tmpfs do OpenBao Agent e dispara {@link ContextRefresher}
- * quando {@code application-runtime.yml} (ou certs) mudam — sem reiniciar a JVM.
+ * quando {@code application-runtime.yml} (ou certs) mudam de conteúdo.
  */
 @Slf4j
 @Component
@@ -55,7 +55,7 @@ public class OpenBaoRuntimeConfigWatcher {
             return;
         }
         try {
-            reloadPropertySource();
+            OpenBaoRuntimeProperties.apply(environment, propertiesFile);
             watchService = FileSystems.getDefault().newWatchService();
             registerTree(runtimeDir);
             executor = Executors.newSingleThreadExecutor(r -> {
@@ -102,38 +102,55 @@ public class OpenBaoRuntimeConfigWatcher {
             } catch (ClosedWatchServiceException ex) {
                 return;
             }
-            boolean relevant = false;
+            boolean yamlTouched = false;
+            boolean certTouched = false;
             for (WatchEvent<?> event : key.pollEvents()) {
                 if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-                    relevant = true;
+                    yamlTouched = true;
+                    certTouched = true;
                     continue;
                 }
                 Path context = (Path) event.context();
-                if (context != null) {
-                    String name = context.toString();
-                    if (name.endsWith(".yml") || name.endsWith(".yaml") || name.endsWith(".pfx")
-                            || name.endsWith(".pem") || name.endsWith(".crt") || name.endsWith(".key")) {
-                        relevant = true;
-                    }
+                if (context == null) {
+                    continue;
+                }
+                String name = context.toString();
+                if (name.endsWith(".yml") || name.endsWith(".yaml")) {
+                    yamlTouched = true;
+                } else if (name.endsWith(".pfx") || name.endsWith(".pem")
+                        || name.endsWith(".crt") || name.endsWith(".key")) {
+                    certTouched = true;
                 }
             }
             Path dir = (Path) key.watchable();
             key.reset();
-            if (relevant) {
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    return;
+            if (!yamlTouched && !certTouched) {
+                continue;
+            }
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            try {
+                registerTree(runtimeDir);
+                OpenBaoRuntimeProperties.ApplyResult applyResult = yamlTouched
+                        ? OpenBaoRuntimeProperties.apply(environment, propertiesFile)
+                        : OpenBaoRuntimeProperties.ApplyResult.UNCHANGED;
+                if (applyResult == OpenBaoRuntimeProperties.ApplyResult.UNCHANGED && !certTouched) {
+                    log.debug("openbao watcher ignorado dir={} motivo=conteudo-igual", dir);
+                    continue;
                 }
-                try {
-                    registerTree(runtimeDir);
-                    reloadPropertySource();
-                    var keys = contextRefresher.refresh();
-                    log.info("openbao watcher refresh ok dir={} keysAlteradas={}", dir, keys.size());
-                } catch (Exception ex) {
-                    log.error("openbao watcher refresh falhou", ex);
+                if (applyResult == OpenBaoRuntimeProperties.ApplyResult.MISSING && !certTouched) {
+                    log.warn("openbao watcher yaml ausente path={}", propertiesFile);
+                    continue;
                 }
+                var keys = contextRefresher.refresh();
+                log.info("openbao watcher refresh ok dir={} apply={} keysAlteradas={}",
+                        dir, applyResult, keys.size());
+            } catch (Exception ex) {
+                log.error("openbao watcher refresh falhou", ex);
             }
         }
     }
@@ -155,14 +172,6 @@ public class OpenBaoRuntimeConfigWatcher {
                     log.warn("openbao watcher nao registrou dir={}", dir);
                 }
             });
-        }
-    }
-
-    private void reloadPropertySource() throws IOException {
-        if (OpenBaoRuntimeProperties.apply(environment, propertiesFile)) {
-            log.debug("openbao properties carregadas path={}", propertiesFile);
-        } else {
-            log.debug("openbao properties ausente path={}", propertiesFile);
         }
     }
 }

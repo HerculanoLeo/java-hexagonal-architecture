@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Carrega {@code application-runtime.yml} do Agent (KV flat → YAML Spring)
@@ -24,6 +25,12 @@ final class OpenBaoRuntimeProperties {
 
     private static final YamlPropertySourceLoader YAML_LOADER = new YamlPropertySourceLoader();
 
+    enum ApplyResult {
+        MISSING,
+        UNCHANGED,
+        CHANGED
+    }
+
     private OpenBaoRuntimeProperties() {
     }
 
@@ -31,13 +38,13 @@ final class OpenBaoRuntimeProperties {
         return runtimeDir.resolve("config/application-runtime.yml");
     }
 
-    static boolean apply(ConfigurableEnvironment environment, Path yamlFile) throws IOException {
+    static ApplyResult apply(ConfigurableEnvironment environment, Path yamlFile) throws IOException {
         if (!Files.isRegularFile(yamlFile)) {
-            return false;
+            return ApplyResult.MISSING;
         }
         List<PropertySource<?>> loaded = YAML_LOADER.load(PROPERTY_SOURCE_NAME, new FileSystemResource(yamlFile));
         if (loaded.isEmpty()) {
-            return false;
+            return ApplyResult.MISSING;
         }
         Map<String, Object> merged = new HashMap<>();
         for (PropertySource<?> source : loaded) {
@@ -50,12 +57,36 @@ final class OpenBaoRuntimeProperties {
             }
         }
         MutablePropertySources sources = environment.getPropertySources();
+        PropertySource<?> existing = sources.get(PROPERTY_SOURCE_NAME);
+        if (existing != null && existing.getSource() instanceof Map<?, ?> oldMap
+                && mapsEqual(oldMap, merged)) {
+            return ApplyResult.UNCHANGED;
+        }
         PropertySource<?> source = new OriginTrackedMapPropertySource(PROPERTY_SOURCE_NAME, merged, true);
         if (sources.contains(PROPERTY_SOURCE_NAME)) {
             sources.replace(PROPERTY_SOURCE_NAME, source);
         } else {
             sources.addFirst(source);
         }
+        return ApplyResult.CHANGED;
+    }
+
+    private static boolean mapsEqual(Map<?, ?> left, Map<String, Object> right) {
+        if (left.size() != right.size()) {
+            return false;
+        }
+        for (Map.Entry<String, Object> entry : right.entrySet()) {
+            if (!left.containsKey(entry.getKey())) {
+                return false;
+            }
+            if (!Objects.equals(stringify(left.get(entry.getKey())), stringify(entry.getValue()))) {
+                return false;
+            }
+        }
         return true;
+    }
+
+    private static String stringify(Object value) {
+        return value == null ? null : String.valueOf(value);
     }
 }
