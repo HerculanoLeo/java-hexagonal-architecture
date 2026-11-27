@@ -17,7 +17,7 @@ Perfil `local` continua sem OpenBao (`application-local.yml`).
 | Imagem com CLI `bao` + entrypoint | `Dockerfile` / `docker-entrypoint.sh` — Agent em background (modo file) ou PID 1 com `exec` (modo env) |
 | Import do YAML runtime | `spring.config.import=optional:file:…/application-runtime.yml` + `OpenBaoRuntimeEnvironmentPostProcessor` (`YamlPropertySourceLoader`) |
 | Watcher + refresh | `OpenBaoRuntimeConfigWatcher` → `ContextRefresher` |
-| Beans recriáveis | DataSource, JavaMailSender, cliente Keycloak admin, CORS (`@RefreshScope`) |
+| Beans recriáveis | JavaMailSender, cliente Keycloak admin, CORS (`@RefreshScope`). DataSource/Hikari **não** — mudança de DB = redeploy |
 | Refresh manual | `POST /api/v1/actuator/refresh` — authority `admin-sistemas` (`/actuator/health` continua público); só relê o YAML local (não puxa do OpenBao) |
 
 Fluxo em runtime:
