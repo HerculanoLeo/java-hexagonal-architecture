@@ -9,7 +9,7 @@ spring:
   profiles:
     active: ${ENVIRONMENT:local}
   config:
-    import: optional:file:/run/openbao/config/application-runtime.properties
+    import: optional:file:${openbao.runtime-dir:/run/openbao}/config/application-runtime.yml
   threads:
     virtual:
       enabled: true
@@ -18,16 +18,8 @@ spring:
     properties:
       hibernate:
         format_sql: false
-  datasource:
-    username: ${CADASTROS_DB_USERNAME}
-    password: ${CADASTROS_DB_PASSWORD}
-    url: jdbc:postgresql://${CADASTROS_DB_HOST}/${CADASTROS_DB_NAME}
   liquibase:
     contexts: ${ENVIRONMENT}
-    user: ${CADASTROS_DB_MG_USERNAME}
-    password: ${CADASTROS_DB_MG_PASSWORD}
-    parameters:
-      app_role: ${CADASTROS_DB_USERNAME:develop}
   security:
     oauth2:
       resource-server:
@@ -58,7 +50,7 @@ logging:
 
 otlp:
   exporter:
-    endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://otel:4318}
+    endpoint: http://otel:4318
 
 management:
   endpoints:
@@ -94,7 +86,7 @@ management:
     export:
       enabled: true
     sampling:
-      probability: ${OTEL_TRACES_SAMPLER_ARG:0.2}
+      probability: 0.2
   metrics:
     tags:
       application: ${spring.application.name}
@@ -114,23 +106,10 @@ openbao:
   runtime-dir: ${OPENBAO_RUNTIME_DIR:/run/openbao}
 
 api:
-  web:
-    cors:
-      allowed-origins: ${CADASTROS_CORS_ALLOWED_ORIGINS}
-  notificacao:
-    email:
-      enabled: ${CADASTROS_NOTIFICACAO_EMAIL_ENABLED:true}
-      max-tentativas: ${CADASTROS_NOTIFICACAO_EMAIL_MAX_TENTATIVAS:5}
-    cron-reenvio: ${CADASTROS_NOTIFICACAO_CRON_REENVIO:0 */15 * * * *}
   oauth:
     keycloak:
-      url: ${KEYCLOAK_HOST}
-      realm: ${KEYCLOAK_REALM}
       role-map-keys:
         - "resource_access"
         - "realm_access"
         - "groups"
-      client-id: ${CADASTROS_KEYCLOAK_CLIENT_ID}
-      client-secret: ${CADASTROS_KEYCLOAK_CLIENT_SECRET}
       gran-type: client_credentials
-      client-id-users: ${KEYCLOAK_CLIENT_ID_USERS}

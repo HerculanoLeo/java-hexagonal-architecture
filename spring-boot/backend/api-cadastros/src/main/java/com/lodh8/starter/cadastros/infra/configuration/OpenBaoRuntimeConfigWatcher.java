@@ -8,31 +8,22 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Modelo C: observa o tmpfs do OpenBao Agent e dispara {@link ContextRefresher}
- * quando {@code application-runtime.properties} (ou certs) mudam — sem reiniciar a JVM.
+ * Observa o tmpfs do OpenBao Agent e dispara {@link ContextRefresher}
+ * quando {@code application-runtime.yml} (ou certs) mudam — sem reiniciar a JVM.
  */
 @Slf4j
 @Component
 public class OpenBaoRuntimeConfigWatcher {
-
-    static final String PROPERTY_SOURCE_NAME = "openbaoRuntimeProperties";
 
     private final ContextRefresher contextRefresher;
     private final ConfigurableEnvironment environment;
@@ -44,8 +35,6 @@ public class OpenBaoRuntimeConfigWatcher {
     private ExecutorService executor;
 
     public OpenBaoRuntimeConfigWatcher(
-            // Sem bootstrap: RefreshAutoConfiguration expõe configDataContextRefresher
-            // (legacyContextRefresher só com spring.cloud.bootstrap.enabled=true).
             @Qualifier("configDataContextRefresher") ContextRefresher contextRefresher,
             ConfigurableEnvironment environment,
             @Value("${openbao.runtime-dir:/run/openbao}") String runtimeDir
@@ -53,7 +42,7 @@ public class OpenBaoRuntimeConfigWatcher {
         this.contextRefresher = contextRefresher;
         this.environment = environment;
         this.runtimeDir = Path.of(runtimeDir);
-        this.propertiesFile = this.runtimeDir.resolve("config/application-runtime.properties");
+        this.propertiesFile = OpenBaoRuntimeProperties.propertiesFile(this.runtimeDir);
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -122,8 +111,8 @@ public class OpenBaoRuntimeConfigWatcher {
                 Path context = (Path) event.context();
                 if (context != null) {
                     String name = context.toString();
-                    if (name.endsWith(".properties") || name.endsWith(".pfx") || name.endsWith(".pem")
-                            || name.endsWith(".crt") || name.endsWith(".key")) {
+                    if (name.endsWith(".yml") || name.endsWith(".yaml") || name.endsWith(".pfx")
+                            || name.endsWith(".pem") || name.endsWith(".crt") || name.endsWith(".key")) {
                         relevant = true;
                     }
                 }
@@ -170,25 +159,10 @@ public class OpenBaoRuntimeConfigWatcher {
     }
 
     private void reloadPropertySource() throws IOException {
-        if (!Files.isRegularFile(propertiesFile)) {
-            log.debug("openbao properties ausente path={}", propertiesFile);
-            return;
-        }
-        Properties props = new Properties();
-        try (Reader reader = Files.newBufferedReader(propertiesFile, StandardCharsets.UTF_8)) {
-            props.load(reader);
-        }
-        Map<String, Object> map = new HashMap<>();
-        for (String name : props.stringPropertyNames()) {
-            map.put(name, props.getProperty(name));
-        }
-        MutablePropertySources sources = environment.getPropertySources();
-        MapPropertySource source = new MapPropertySource(PROPERTY_SOURCE_NAME, map);
-        if (sources.contains(PROPERTY_SOURCE_NAME)) {
-            sources.replace(PROPERTY_SOURCE_NAME, source);
+        if (OpenBaoRuntimeProperties.apply(environment, propertiesFile)) {
+            log.debug("openbao properties carregadas path={}", propertiesFile);
         } else {
-            sources.addFirst(source);
+            log.debug("openbao properties ausente path={}", propertiesFile);
         }
-        log.debug("openbao properties carregadas path={} total={}", propertiesFile, map.size());
     }
 }

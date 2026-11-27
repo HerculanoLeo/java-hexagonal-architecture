@@ -1,6 +1,6 @@
 # OpenBao — integração
 
-Este starter usa **[OpenBao](https://openbao.org/)** (API compatível com Vault) como source of truth de **config runtime + secrets**. A API (`api-cadastros`) sobe atrás do **OpenBao Agent**: o Agent autentica (AppRole), materializa um ficheiro de propriedades e só então executa o JAR. Alterações no KV atualizam o ficheiro; o Spring faz **live reload** sem reiniciar o container.
+Este starter usa **[OpenBao](https://openbao.org/)** (API compatível com Vault) como source of truth de **config runtime + secrets**. A API (`api-cadastros`) sobe atrás do **OpenBao Agent**: o Agent autentica (AppRole), materializa um **YAML Spring** no tmpfs e só então o JAR sobe. Alterações no KV atualizam o ficheiro; o Spring faz **live reload** sem reiniciar o container.
 
 Motivos principais:
 
@@ -14,46 +14,44 @@ Perfil `local` continua sem OpenBao (`application-local.yml`).
 
 | Peça | Onde |
 |------|------|
-| Imagem com CLI `bao` + entrypoint | `spring-boot/backend/api-cadastros/Dockerfile`, `docker-entrypoint.sh` — se existir `/openbao/agent.hcl`, PID 1 = `bao agent` |
-| Import do ficheiro runtime | `application.yml` → `spring.config.import=optional:file:/run/openbao/config/application-runtime.properties` |
+| Imagem com CLI `bao` + entrypoint | `Dockerfile` / `docker-entrypoint.sh` — Agent em background (modo file) ou PID 1 com `exec` (modo env) |
+| Import do YAML runtime | `spring.config.import=optional:file:…/application-runtime.yml` + `OpenBaoRuntimeEnvironmentPostProcessor` (`YamlPropertySourceLoader`) |
 | Watcher + refresh | `OpenBaoRuntimeConfigWatcher` → `ContextRefresher` |
 | Beans recriáveis | DataSource, JavaMailSender, cliente Keycloak admin, CORS (`@RefreshScope`) |
 | Refresh manual | `POST /api/v1/actuator/refresh` — authority `admin-sistemas` (`/actuator/health` continua público) |
-| Placeholders Spring | `${CADASTROS_*}`, `${KEYCLOAK_*}`, `SPRING_MAIL_*`, etc. — preenchidos pelas keys do ficheiro |
 
 Fluxo em runtime:
 
 ```text
 KV (keys flat)
-  → OpenBao Agent (AppRole; PID 1)
-      → /run/openbao/config/application-runtime.properties
+  → OpenBao Agent (AppRole; template → YAML)
+      → /run/openbao/config/application-runtime.yml
       → (opcional) /run/openbao/certs/...
-      → exec java -jar
-  → Spring importa o .properties + FileWatcher → refresh in-process
+  → entrypoint espera o YAML, depois java -jar
+  → Spring importa o YAML + FileWatcher → refresh in-process
 ```
 
 ## O que a infra / deploy precisa fornecer
 
 Checklist para integrar este projeto a um OpenBao real:
 
-1. **KV v2** com path por app/ambiente, por exemplo `secret/<projeto>/<app>/<env>`, **mapa flat** de keys (mesmos nomes que os placeholders Spring).
-2. **AppRole** (ou auth equivalente) com policy de **read** só nesse path; `role_id` + `secret_id` disponíveis no container.
-3. **Montagem bootstrap** no container:
-   - `/openbao/agent.hcl`, `/openbao/role_id`, `/openbao/secret_id` (tipicamente `:ro` a partir do host).
-4. **`agent.hcl` em modo ficheiro** (`template { }` apenas — o Agent **não** permite misturar `template` com `exec`/`env_template`):
-   - template → `/run/openbao/config/application-runtime.properties` (`KEY=value` a partir do KV);
-   - **sem** bloco `exec` — o `docker-entrypoint.sh` sobe `bao agent` em background, espera o `.properties` e faz `exec java -jar`.
-5. **tmpfs** (ou volume RW efémero) em `/run/openbao` para o Agent gravar config/certs — separado do `/openbao` de bootstrap.
-6. **Lista de keys** alinhada ao que a app lê (DB, Keycloak, CORS, mail, flags de notificação, OTEL app, …). Novas keys = KV + lista do Agent + placeholder/`application.yml` se necessário.
-7. **Certificados (opcional):** entradas `file_templates` no Agent (`kv_key` + `destination` absoluto sob `/run/openbao` + `encoding` raw/base64); a app referencia o path via property.
+1. **KV v2** com path por app/ambiente (`secret/<projeto>/<app>/<env>`), **mapa flat** de keys.
+2. **AppRole** (ou auth equivalente) com policy de **read** só nesse path; `role_id` + `secret_id` no container.
+3. **Montagem bootstrap**: `/openbao/agent.hcl`, `/openbao/role_id`, `/openbao/secret_id` (tipicamente `:ro`).
+4. **`agent.hcl` em modo ficheiro** (`template { }` apenas — **não** misturar com `exec`/`env_template`):
+   - template mapeia keys flat → árvore Spring em `/run/openbao/config/application-runtime.yml`;
+   - **sem** bloco `exec` — o entrypoint sobe `bao agent` em background, espera o YAML e faz `exec java -jar`.
+5. **tmpfs** (ou volume RW efémero) em `/run/openbao`.
+6. **Keys** alinhadas ao mapa do template Agent (DB, Keycloak, CORS, mail, flags, OTEL app, …).
+7. **Certificados (opcional):** `file_templates` (`kv_key` + `destination` + `encoding`).
 
-Sem esses passos, o entrypoint cai no `java -jar` direto (útil em local) e o watcher não arranca se `/run/openbao` não existir.
+Sem esses passos, o entrypoint cai no `java -jar` direto (local) e o watcher não arranca se `/run/openbao` não existir.
 
 ## Contrato das keys
 
-- Preferir **keys flat** no mesmo objeto KV (ex.: `CADASTROS_DB_PASSWORD`, `KEYCLOAK_HOST`), não um blob YAML único.
-- O Agent gera `application-runtime.properties`; o Spring resolve `${…}` em `application.yml`.
-- Não colocar passwords no Compose `.env` quando o Agent estiver ativo — só plumbing de deploy (nome do serviço OTEL, paths de volume, etc.).
+- **KV flat** no OpenBao (ex.: `CADASTROS_DB_PASSWORD`, `KEYCLOAK_HOST`).
+- O Agent **traduz** para YAML Spring (`spring.datasource.*`, `spring.mail.*`, `api.*`, …).
+- Não colocar passwords no Compose `.env` quando o Agent estiver ativo — só plumbing de deploy.
 
 ## Limites neste starter
 
