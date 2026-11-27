@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
+import org.springframework.boot.liquibase.autoconfigure.LiquibaseDataSource;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +16,9 @@ import org.springframework.core.env.Environment;
 import javax.sql.DataSource;
 
 /**
- * DataSource estável (sem {@code @RefreshScope}): o pool só troca quando
- * {@code spring.datasource.*} muda — refresh de mail/CORS/Keycloak não
- * derruba conexões em voo. Liquibase continua só no boot.
+ * DataSource estável (sem {@code @RefreshScope}): o pool da app só troca quando
+ * {@code spring.datasource.*} muda. Liquibase usa um Hikari dedicado no boot
+ * ({@link LiquibaseDataSource}) — o proxy não expõe {@code url} por reflexão.
  */
 @Slf4j
 @Configuration
@@ -31,6 +32,16 @@ public class RefreshableDataSourceConfiguration {
         HikariDataSource hikari = buildHikari(properties, environment);
         this.swappingDataSource = new SwappingDataSource(hikari);
         return this.swappingDataSource;
+    }
+
+    /**
+     * Migrações só no boot; precisa de Hikari “real” para o
+     * {@code DataSourceBuilder.derivedFrom(...)} do auto-config Liquibase.
+     */
+    @Bean
+    @LiquibaseDataSource
+    DataSource liquibaseDataSource(DataSourceProperties properties, Environment environment) {
+        return buildHikari(properties, environment);
     }
 
     @EventListener

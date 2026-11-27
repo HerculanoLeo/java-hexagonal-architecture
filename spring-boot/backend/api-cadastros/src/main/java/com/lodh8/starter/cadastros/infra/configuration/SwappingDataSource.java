@@ -42,6 +42,27 @@ final class SwappingDataSource implements DataSource, AutoCloseable {
         return current;
     }
 
+    /** Compatível com reflexão tipo Hikari ({@code DataSourceBuilder.derivedFrom}). */
+    public String getJdbcUrl() {
+        HikariDataSource current = delegate.get();
+        return current != null ? current.getJdbcUrl() : null;
+    }
+
+    public String getUsername() {
+        HikariDataSource current = delegate.get();
+        return current != null ? current.getUsername() : null;
+    }
+
+    public String getPassword() {
+        HikariDataSource current = delegate.get();
+        return current != null ? current.getPassword() : null;
+    }
+
+    public String getDriverClassName() {
+        HikariDataSource current = delegate.get();
+        return current != null ? current.getDriverClassName() : null;
+    }
+
     @Override
     public Connection getConnection() throws SQLException {
         return requireDelegate().getConnection();
